@@ -23,7 +23,7 @@ async function loadCats() {
     grid.textContent = "Loading...";
 
     try {
-        const res = await fetch("/cats");
+        const res = await fetch("http://localhost:5000/cats");
         const cats = await res.json();
 
         if (!Array.isArray(cats) || cats.length == 0) {
@@ -61,4 +61,6 @@ async function loadCats() {
         grid.textContent = "Failed to load cats.";
         console.error(err);
     }
+
 }
+loadCats();
