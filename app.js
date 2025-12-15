@@ -10,6 +10,13 @@ const port = process.env.PORT || 5000;
 app.use(bodyparser.urlencoded({extended:true}));
 app.use(bodyparser.json());
 
+
+const cors = require('cors');
+app.use(cors()); 
+
+app.use(express.static("public"));
+
+
 const pool = mysql.createPool({
     host : "localhost",
     user : "root",
@@ -28,11 +35,11 @@ app.get("/cats", (req, res) => {
             console.error("DB connection error:", err);
             return res.status(500).json({error: "DB connection error"});
         }
-        connection.query("SELECT * From cats", (req, rows) => {
+        connection.query("SELECT * From cats", (qErr, rows) => {
             connection.release();
             if (qErr){
                 console.error("Query error:", qErr);
-                return res.status(500).json({eooor: "Query error"});
+                return res.status(500).json({error: "Query error"});
             }
             res.json(rows);
         });
@@ -79,7 +86,7 @@ app.post("/cats", (req, res) => {
 });
 //delete record
 app.delete("/cats/:id", (req, res) =>{
-    pool.connection((err, connection) => {
+    pool.getConnection((err, connection) => {
         if (err){
             console.error("DB connection error:", err);
             return res.status(500).json({ error: "DB connection error"});

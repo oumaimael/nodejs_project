@@ -1,22 +1,3 @@
-/*const { createElement } = require("react");
-
-document.addEventListener('DOMContentLoaded', function() {
-
-const btn = document.querySelector(`button[class="addcart"]`);
-const div = document.querySelector(`div[class="cats"]`);
-const addc = document.querySelector(`div[class="addC"]`);
-
-btn.addEventListener('click', function() {
-        for (let i=0; i<4; i++){
-            const input = document.createElement("input");
-            input.classList.add(`input${i}`);
-        }
-        
-    });
-
-})
-    */
-
 
 async function loadCats() {
     const grid = document.getElementById("grid");
