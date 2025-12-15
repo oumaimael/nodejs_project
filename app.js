@@ -22,13 +22,13 @@ const pool = mysql.createPool({
 
 //get cat from db
 
-app.get("/cat", (req, res) => {
+app.get("/cats", (req, res) => {
     pool.getConnection((err, connection) => {
         if(err){
             console.error("DB connection error:", err);
             return res.status(500).json({error: "DB connection error"});
         }
-        connection.query("SELECT * From cat", (qErr, rows) => {
+        connection.query("SELECT * From cats", (req, rows) => {
             connection.release();
             if (qErr){
                 console.error("Query error:", qErr);
@@ -40,14 +40,14 @@ app.get("/cat", (req, res) => {
 });
 
 //get cat by id
-app.get("/cat/:id", (req, res) =>{
+app.get("/cats/:id", (req, res) =>{
     pool.getConnection((err, connection) => {
         if (err){
             console.error("DB connection error:", err);
             return res.status(500).json({ error: "DB connection error"});
         }
-        connection.query("SELECT * FROM cat where id = ?", [reportError.params.id], (qErr, rows) => {
-            const sql = "SELECT * FROM cat WHERE is = " + req.query.id;
+        connection.query("SELECT * FROM cats where id = ?", [req.params.id], (qErr, rows) => {
+            const sql = "SELECT * FROM cats WHERE id =" + req.query.id;
             //SELECT * FROM cat WHERE id = '5; DROP TABLE cat'
             connection.release();
             if(qErr){
@@ -78,13 +78,13 @@ app.post("/cats", (req, res) => {
     })
 });
 //delete record
-app.delete("/cat/:id", (req, res) =>{
+app.delete("/cats/:id", (req, res) =>{
     pool.connection((err, connection) => {
         if (err){
             console.error("DB connection error:", err);
             return res.status(500).json({ error: "DB connection error"});
         }
-        connection.query("DELETE FROM cat where id = ?", [req.params.id], (qErr, rows) => {
+        connection.query("DELETE FROM cats where id = ?", [req.params.id], (qErr, rows) => {
             connection.release();
             if(qErr){
                 console.error("Query error", qErr);
