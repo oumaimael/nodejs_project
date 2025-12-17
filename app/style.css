@@ -2,27 +2,175 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 16px;
-  }
+}
 
-body .main-container {
+.main-container {
     width: 75%;
     margin: 25px auto 0;
 }
-.topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 16px;
+
+h1 {
+    margin: 0 0 20px 0;
+    text-align: center;
 }
-  
-.grid {
+
+/* Popup Styles */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-box {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    min-width: 300px;
+    max-width: 400px;
+    border: 1px solid #ddd;
+}
+
+.popup-message {
+    font-size: 14px;
+    color: #444;
+}
+
+.popup-actions {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.confirm-actions {
+    margin-top: 20px;
+    text-align: right;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.popup-actions button,
+.confirm-actions button {
+    padding: 8px 16px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+}
+
+/* Edit Cat Popup */
+#editCatForm {
+    display: none;
+}
+
+.edit-form-group {
+    margin-bottom: 12px;
+}
+
+.edit-form-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.edit-form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.edit-form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.edit-form-actions button {
+    flex: 1;
+    padding: 8px 10px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+}
+
+/* Add Cat Form */
+#addCatFormContainer {
+    margin-bottom: 20px;
+}
+
+#showAddFormBtn {
+    padding: 8px 16px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+}
+
+#addCatForm {
+    display: none;
+    margin-top: 16px;
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+}
+
+#addCatForm h3 {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+}
+
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.form-actions button {
+    flex: 1;
+    padding: 8px 10px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+}
+
+/* Grid and Cards */
+#grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(220px, 1fr));
     gap: 12px;
     min-height: 375px;
     border: 1px dashed #ccc;
     padding: 12px;
+    margin-top: 20px;
 }
 
 .card {
@@ -32,9 +180,9 @@ body .main-container {
     background: #fff;
     display: flex;
     flex-direction: column;
-  }
-  
-  .imgWrap {
+}
+
+.imgWrap {
     height: 140px;
     border-radius: 8px;
     overflow: hidden;
@@ -43,33 +191,33 @@ body .main-container {
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  
-  .imgWrap img {
+}
+
+.imgWrap img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-  
-  .imgFallback {
+}
+
+.imgFallback {
     color: #666;
     font-size: 14px;
-  }
-  
-  .card h3 {
+}
+
+.card h3 {
     margin: 8px 0 6px;
     font-size: 18px;
-  }
-  
-  .card p {
+}
+
+.card p {
     margin: 0 0 10px;
     color: #444;
     font-size: 14px;
     line-height: 1.35;
     min-height: 36px;
-  }
-  
-  .tag {
+}
+
+.tag {
     display: inline-block;
     padding: 4px 8px;
     border-radius: 999px;
@@ -77,16 +225,21 @@ body .main-container {
     color: #204a9a;
     font-size: 12px;
     margin-bottom: 10px;
-  }
-  
-  .actions {
+}
+
+.actions {
     display: flex;
     gap: 8px;
     margin-top: auto;
-  }
-  
-  .actions button {
+}
+
+.actions button {
     flex: 1;
     padding: 8px 10px;
     cursor: pointer;
-  }
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+}
+
+

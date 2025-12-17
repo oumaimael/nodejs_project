@@ -1,14 +1,14 @@
 //importing modules
 const express = require("express");
 const mysql = require("mysql");
-const bodyparser = require("body-parser");
+const bodyParser = require("body-parser");
 
 //launching app
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(bodyparser.urlencoded({extended:true}));
-app.use(bodyparser.json());
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json());
 
 
 const cors = require('cors');

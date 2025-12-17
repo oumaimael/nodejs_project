@@ -3,21 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD app</title>
+    <title>Cats App</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <section class="main-container">
-        <header class="topbar">
-            <h1>Cats Gallery</h1>
-            <button id="addBtn">Add Cat</button>
-        </header>
-        <main>
-            <div id="grid" class="grid"></div>
-        </main>
-    </section>
-    <!-- Modal (hidden by default) -->
-    <div id="modalOverlay" class="modalOverlay hidden"></div>
+    <!-- Popup Container -->
+    <div id="popupContainer" class="popup-overlay">
+        <div id="popup" class="popup-box">
+            <div id="popupMessage" class="popup-message"></div>
+            <div class="popup-actions">
+                <button id="popupOk">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Popup -->
+    <div id="confirmPopup" class="popup-overlay">
+        <div id="confirmBox" class="popup-box">
+            <div id="confirmMessage" class="popup-message"></div>
+            <div class="confirm-actions">
+                <button id="confirmYes">Yes</button>
+                <button id="confirmNo">No</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Cat Popup -->
+    <div id="editCatPopup" class="popup-overlay">
+        <div id="editCatBox" class="popup-box">
+            <h3>Edit Cat</h3>
+            <form id="editCatForm">
+                <div class="edit-form-group">
+                    <label for="editCatName">Name: </label>
+                    <input type="text" id="editCatName" required>
+                </div>
+                <div class="edit-form-group">
+                    <label for="editCatDescription">Description: </label>
+                    <input type="text" id="editCatDescription">
+                </div>
+                <div class="edit-form-group">
+                    <label for="editCatTag">Tag: </label>
+                    <input type="text" id="editCatTag">
+                </div>
+                <div class="edit-form-group">
+                    <label for="editCatImage">Image URL: </label>
+                    <input type="text" id="editCatImage">
+                </div>
+                <div class="edit-form-actions">
+                    <button type="submit">Update Cat</button>
+                    <button type="button" id="cancelEditBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <h1>Cats Gallery</h1>
+        
+        <div id="addCatFormContainer">
+            <button id="showAddFormBtn">Add New Cat</button>
+            <div id="addCatForm">
+                <h3>Add New Cat</h3>
+                <form id="catForm">
+                    <div class="form-group">
+                        <label for="catName">Name: </label>
+                        <input type="text" id="catName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="catDescription">Description: </label>
+                        <input type="text" id="catDescription">
+                    </div>
+                    <div class="form-group">
+                        <label for="catTag">Tag: </label>
+                        <input type="text" id="catTag">
+                    </div>
+                    <div class="form-group">
+                        <label for="catImage">Image URL: </label>
+                        <input type="text" id="catImage">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit">Add Cat</button>
+                        <button type="button" id="cancelAddBtn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div id="grid"></div>
+    </div>
+    
     <script src="script.js"></script>
 </body>
 </html>
