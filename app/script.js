@@ -1,6 +1,8 @@
-// Global variables for filtering
+// Global variables for filtering and pagination
 let allCats = [];
-let currentTags = [];
+let filteredCats = [];
+let currentPage = 1;
+const catsPerPage = 8;
 
 // Initialize everything when page loads
 document.addEventListener("DOMContentLoaded", () => {
@@ -109,11 +111,13 @@ function initCatForm() {
 function initFilters() {
     // Search input event
     document.getElementById("searchInput").addEventListener("input", () => {
+        currentPage = 1;
         filterCats();
     });
     
     // Tag filter event
     document.getElementById("tagFilter").addEventListener("change", () => {
+        currentPage = 1;
         filterCats();
     });
     
@@ -121,6 +125,7 @@ function initFilters() {
     document.getElementById("clearFilters").addEventListener("click", () => {
         document.getElementById("searchInput").value = "";
         document.getElementById("tagFilter").value = "";
+        currentPage = 1;
         filterCats();
     });
 }
@@ -130,7 +135,7 @@ function filterCats() {
     const searchTerm = document.getElementById("searchInput").value.toLowerCase();
     const selectedTag = document.getElementById("tagFilter").value;
     
-    const filteredCats = allCats.filter(cat => {
+    filteredCats = allCats.filter(cat => {
         // Search filter
         const matchesSearch = searchTerm === "" || 
             (cat.name && cat.name.toLowerCase().includes(searchTerm)) ||
@@ -142,19 +147,27 @@ function filterCats() {
         return matchesSearch && matchesTag;
     });
     
-    displayCats(filteredCats);
+    displayCurrentPage();
 }
 
-// Display cats in grid
-function displayCats(cats) {
+// Display current page of cats
+function displayCurrentPage() {
     const grid = document.getElementById("grid");
     
-    if (!Array.isArray(cats) || cats.length == 0) {
+    if (!Array.isArray(filteredCats) || filteredCats.length == 0) {
         grid.textContent = "No cats found matching your search.";
+        document.getElementById("pagination").innerHTML = "";
         return;
     }
-
-    grid.innerHTML = cats
+    
+    // Calculate pagination
+    const totalPages = Math.ceil(filteredCats.length / catsPerPage);
+    const startIndex = (currentPage - 1) * catsPerPage;
+    const endIndex = startIndex + catsPerPage;
+    const pageCats = filteredCats.slice(startIndex, endIndex);
+    
+    // Display cats for current page
+    grid.innerHTML = pageCats
         .map((c) => {
             const name = c.name ?? "";
             const description = c.description ?? "";
@@ -180,7 +193,18 @@ function displayCats(cats) {
             `;
         })
         .join("");
+    
+    // Add event listeners
+    addCardEventListeners();
+    
+    // Update pagination
+    updatePagination(totalPages);
+}
 
+// Add event listeners to cat cards
+function addCardEventListeners() {
+    const grid = document.getElementById("grid");
+    
     // Add event listeners for delete buttons
     grid.querySelectorAll(".deleteBtn").forEach((btn) => {
         btn.addEventListener("click", (e) => {
@@ -206,6 +230,59 @@ function displayCats(cats) {
                 showPopup("Error loading cat data. Please check your connection.");
                 console.error(err);
             }
+        });
+    });
+}
+
+// Update pagination controls
+function updatePagination(totalPages) {
+    const pagination = document.getElementById("pagination");
+    
+    if (totalPages <= 1) {
+        pagination.innerHTML = "";
+        return;
+    }
+    
+    let paginationHTML = '<div class="pagination-buttons">';
+    
+    // Previous button
+    if (currentPage > 1) {
+        paginationHTML += `<button class="page-btn prev-btn" data-page="${currentPage - 1}">← Prev</button>`;
+    }
+    
+    // Page numbers
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    // Adjust if we're near the end
+    if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+    }
+    
+    // Next button
+    if (currentPage < totalPages) {
+        paginationHTML += `<button class="page-btn next-btn" data-page="${currentPage + 1}">Next →</button>`;
+    }
+    
+    paginationHTML += '</div>';
+    
+    // Add page info
+    const startCat = (currentPage - 1) * catsPerPage + 1;
+    const endCat = Math.min(currentPage * catsPerPage, filteredCats.length);
+    paginationHTML += `<div class="pagination-info">Showing ${startCat}-${endCat} of ${filteredCats.length} cats</div>`;
+    
+    pagination.innerHTML = paginationHTML;
+    
+    // Add event listeners to pagination buttons
+    pagination.querySelectorAll(".page-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            currentPage = parseInt(e.target.dataset.page);
+            displayCurrentPage();
         });
     });
 }
@@ -331,6 +408,7 @@ async function loadCats() {
 
         if (!Array.isArray(allCats) || allCats.length == 0) {
             grid.textContent = "No cats found.";
+            document.getElementById("pagination").innerHTML = "";
             return;
         }
 
@@ -338,11 +416,14 @@ async function loadCats() {
         const tags = [...new Set(allCats.map(cat => cat.tag).filter(tag => tag && tag.trim() !== ""))];
         updateTagFilter(tags);
         
-        // Display all cats initially
-        displayCats(allCats);
+        // Reset to first page and display
+        currentPage = 1;
+        filteredCats = [...allCats];
+        displayCurrentPage();
 
     } catch (err) {
         grid.textContent = "Failed to load cats.";
+        document.getElementById("pagination").innerHTML = "";
         console.error(err);
     }
 }
