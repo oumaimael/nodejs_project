@@ -1,0 +1,194 @@
+/* Contact Page Styles */
+.contact-content {
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    margin-top: 20px;
+    line-height: 1.6;
+}
+
+.contact-content h2 {
+    color: #333;
+    margin: 0 0 20px 0;
+    font-size: 24px;
+    text-align: center;
+}
+
+.contact-content h3 {
+    color: #333;
+    margin: 25px 0 15px;
+    font-size: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 8px;
+}
+
+.contact-content p {
+    margin: 0 0 15px;
+    color: #444;
+    font-size: 16px;
+}
+
+.contact-content strong {
+    color: #333;
+    font-weight: bold;
+}
+
+.contact-content ul {
+    margin: 15px 0;
+    padding-left: 20px;
+}
+
+.contact-content li {
+    margin: 8px 0;
+    color: #444;
+    font-size: 16px;
+}
+
+.contact-content li:before {
+    content: "•";
+    color: #666;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+}
+
+/* Contact Form */
+.contact-form-container {
+    background: #f9f9f9;
+    padding: 25px;
+    border-radius: 8px;
+    margin: 25px 0;
+    border: 1px solid #e0e0e0;
+}
+
+.contact-form-container h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.form-section {
+    margin-bottom: 25px;
+}
+
+.form-section-title {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.radio-group {
+    margin-bottom: 15px;
+}
+
+.radio-option {
+    margin-bottom: 10px;
+}
+
+.radio-option input {
+    margin-right: 8px;
+}
+
+.radio-option label {
+    font-size: 15px;
+    color: #444;
+}
+
+/* Contact Methods */
+.contact-methods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 25px 0;
+}
+
+.contact-method {
+    flex: 1;
+    min-width: 250px;
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    border-left: 4px solid #e0e0e0;
+}
+
+.contact-method h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.contact-method p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.contact-method .method-label {
+    font-weight: bold;
+    color: #333;
+}
+
+/* Emergency Notice */
+.emergency-notice {
+    background: #fff8f8;
+    border: 1px solid #ffcccc;
+    border-left: 4px solid #ff6666;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 25px 0;
+}
+
+.emergency-notice h4 {
+    color: #cc3333;
+    margin: 0 0 10px 0;
+}
+
+/* Hours Info */
+.hours-info {
+    background: #f0f8ff;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 25px 0;
+    border-left: 4px solid #cce0ff;
+}
+
+.hours-info h4 {
+    color: #3366cc;
+    margin: 0 0 10px 0;
+}
+
+.hours-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.hours-table tr {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.hours-table td {
+    padding: 8px 0;
+    color: #444;
+}
+
+.hours-table td:first-child {
+    font-weight: bold;
+    width: 40%;
+}
+
+/* Form Textarea */
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    min-height: 120px;
+    resize: vertical;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #999;
+}

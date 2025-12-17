@@ -111,7 +111,7 @@ app.put("/cats/:id", (req, res) => {
             console.error("DB connection error:", err);
             return res.status(500).json({error : "DB connection error"})
         }
-        connection.query("UPDATE cats SET name = ?, tag = ?, description = ? WHERE id = ?", [name, tag, description, req.params.id], (qErr, rows) => {
+        connection.query("UPDATE cats SET name = ?, tag = ?, description = ?, img = ? WHERE id = ?", [name, tag, description, img, req.params.id], (qErr, rows) => {
             connection.release();
             if(qErr) {
                 console.error("Query error:", qErr);
@@ -121,6 +121,7 @@ app.put("/cats/:id", (req, res) => {
         })
     })
 });
+
 
 //listen to port
 app.listen(port, () => {

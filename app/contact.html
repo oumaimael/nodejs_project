@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cats App - Contact & Get Involved</title>
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/navbar.css">
+    <link rel="stylesheet" href="styles/contact.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html">Cats Adoption</a>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="contact.html" class="nav-link active">Contact</a>
+                <button id="loginBtn" class="nav-login">Admin </button>
+                <button id="logoutBtn" class="nav-logout" style="display: none;">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <h1>Contact & Get Involved</h1>
+        <div class="contact-content">
+            <h2>Help Us Make a Difference</h2>
+            <p>Whether you want to adopt, volunteer, surrender a cat, or support our mission, we're here to help. Choose how you'd like to connect with us below.</p>
+            
+            <div class="contact-form-container">
+                <h3>Contact Form</h3>
+                <form id="contactForm">
+                    <div class="form-section">
+                        <div class="form-section-title">What would you like to contact us about?</div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="purpose-adopt" name="contact-purpose" value="adoption" required>
+                                <label for="purpose-adopt">I want to adopt a cat</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="purpose-volunteer" name="contact-purpose" value="volunteer">
+                                <label for="purpose-volunteer">I want to volunteer or foster</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="purpose-surrender" name="contact-purpose" value="surrender">
+                                <label for="purpose-surrender">I need to surrender a cat</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="purpose-report" name="contact-purpose" value="report">
+                                <label for="purpose-report">I want to report a stray/abandoned cat</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="purpose-donate" name="contact-purpose" value="donate">
+                                <label for="purpose-donate">I want to donate or sponsor</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="purpose-other" name="contact-purpose" value="other">
+                                <label for="purpose-other">Other inquiry</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label for="contact-name">Full Name *</label>
+                            <input type="text" id="contact-name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contact-email">Email Address *</label>
+                            <input type="email" id="contact-email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contact-phone">Phone Number</label>
+                            <input type="tel" id="contact-phone">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contact-city">City & State</label>
+                            <input type="text" id="contact-city" placeholder="e.g., New York, NY">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label for="contact-message">Your Message *</label>
+                            <textarea id="contact-message" required placeholder="Please provide details about your inquiry..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contact-cat">If adopting or reporting/surrender, which cat(s) are you interested in or referring to?</label>
+                            <input type="text" id="contact-cat" placeholder="Cat name or description">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit">Send Message</button>
+                        <button type="reset">Clear Form</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="emergency-notice">
+                <h4>⚠️ Emergency Situation in Morocco?</h4>
+                <p>If you have found an injured, sick, or in immediate danger cat in Morocco, please call our emergency line:</p>
+                <p><strong>Morocco Emergency Line:</strong> +212 522-123-456</p>
+                <p>Available 24/7 for urgent situations only in Morocco.</p>
+            </div>
+
+            <div class="contact-methods">
+                <div class="contact-method">
+                    <h4>General Inquiries</h4>
+                    <p><span class="method-label">Email:</span> info@catsgallery.ma</p>
+                    <p><span class="method-label">Phone:</span> +212 522-987-654</p>
+                    <p><span class="method-label">WhatsApp:</span> +212 6XX-XXXXXX</p>
+                    <p><span class="method-label">For:</span> General questions, website issues, media inquiries</p>
+                </div>
+                
+                <div class="contact-method">
+                    <h4>Adoption Team </h4>
+                    <p><span class="method-label">Email:</span> adopt@catsgallery.ma</p>
+                    <p><span class="method-label">Phone:</span> +212 522-876-543</p>
+                    <p><span class="method-label">WhatsApp:</span> +212 6XX-XXXXXX</p>
+                    <p><span class="method-label">For:</span> Adoption applications, meet & greet scheduling</p>
+                </div>
+                
+                <div class="contact-method">
+                    <h4>Surrender & Rescue </h4>
+                    <p><span class="method-label">Email:</span> surrender@catsgallery.ma</p>
+                    <p><span class="method-label">Phone:</span> +212 522-765-432</p>
+                    <p><span class="method-label">WhatsApp:</span> +212 6XX-XXXXXX</p>
+                    <p><span class="method-label">For:</span> Surrendering a cat, reporting strays, rescue coordination</p>
+                </div>
+                
+                <div class="contact-method">
+                    <h4>Volunteer & Foster </h4>
+                    <p><span class="method-label">Email:</span> volunteer@catsgallery.ma</p>
+                    <p><span class="method-label">Phone:</span> +212 522-654-321</p>
+                    <p><span class="method-label">WhatsApp:</span> +212 6XX-XXXXXX</p>
+                    <p><span class="method-label">For:</span> Volunteer applications, foster care inquiries</p>
+                </div>
+            </div>
+
+            <div class="hours-info">
+                <h4>Office Hours & Response Times</h4>
+                <table class="hours-table">
+                    <tr>
+                        <td>Monday - Friday</td>
+                        <td>9:00 AM - 6:00 PM (Morocco Time)</td>
+                    </tr>
+                    <tr>
+                        <td>Saturday</td>
+                        <td>10:00 AM - 4:00 PM (Morocco Time)</td>
+                    </tr>
+                    <tr>
+                        <td>Sunday</td>
+                        <td>Closed (emergency only)</td>
+                    </tr>
+                </table>
+                <p style="margin-top: 15px;"><strong>Typical Response Times in Morocco:</strong></p>
+                <ul>
+                    <li>General inquiries: 24-48 hours</li>
+                    <li>Adoption applications: 1-3 business days</li>
+                    <li>Emergency/surrender: Same day (call preferred)</li>
+                    <li>Volunteer applications: 3-5 business days</li>
+                </ul>
+            </div>
+
+            <h3>Our Locations in Morocco</h3>
+            
+            <div class="contact-method">
+                <h4>Casablanca Main Shelter</h4>
+                <p><span class="method-label">Address:</span> Rue des Orangers, Maarif, Casablanca 20250</p>
+                <p><span class="method-label">Directions:</span> Near Marjane Maarif, opposite Parc de la Ligue Arabe</p>
+            </div>
+            
+            <div class="contact-method">
+                <h4>Rabat Adoption Center</h4>
+                <p><span class="method-label">Address:</span> Avenue Mohammed V, Agdal, Rabat 10000</p>
+                <p><span class="method-label">Directions:</span> Next to the Royal Clinic, near Rabat Ville Train Station</p>
+            </div>
+            
+            <div class="contact-method">
+                <h4>Marrakech Rescue Center</h4>
+                <p><span class="method-label">Address:</span> Route de l'Ourika, Guéliz, Marrakech 40000</p>
+                <p><span class="method-label">Directions:</span> Near Carré Eden Shopping Center, Guéliz district</p>
+            </div>
+            
+            <p><strong>Note:</strong> All visits are by appointment only. Please contact us first to schedule a visit at any of our Morocco locations.</p>
+
+            <h3>Partner Veterinary Clinics</h3>
+            <ul>
+                <li><strong>Clinique Vétérinaire du Maarif:</strong> Casablanca - +212 522-111-222</li>
+                <li><strong>Cabinet Vétérinaire Agdal:</strong> Rabat - +212 537-222-333</li>
+                <li><strong>Centre Vétérinaire Guéliz:</strong> Marrakech - +212 524-333-444</li>
+                <li><strong>Clinique Animale Tanger:</strong> Tangier - +212 539-444-555</li>
+                <li><strong>Cabinet Vétérinaire Fès:</strong> Fez - +212 535-555-666</li>
+            </ul>
+
+            <h3>What to Expect When You Contact Us</h3>
+            <ul>
+                <li><strong>Adoption Inquiries:</strong> We'll send you an application and schedule a home visit (in Casablanca, Rabat, or Marrakech areas)</li>
+                <li><strong>Surrender Requests:</strong> We conduct a compassionate intake interview and may arrange pickup in major cities</li>
+                <li><strong>Volunteer Applications:</strong> We'll send you our volunteer packet and schedule orientation at nearest center</li>
+                <li><strong>Stray Reports:</strong> Our rescue team will assess and coordinate with local volunteers</li>
+                <li><strong>Follow-up:</strong> We maintain contact throughout the process to ensure the best outcome</li>
+            </ul>
+
+            <div class="contact-method" style="margin-top: 30px; background: #f0f8ff;">
+                <h4>Donations & Support</h4>
+                <p><span class="method-label">Bank Transfer:</span> Banque Populaire - Account: 123 456 789 10 11</p>
+                <p><span class="method-label">Western Union:</span> Available for international donations to Morocco</p>
+                <p><span class="method-label">In-Kind Donations:</span> Cat food, litter, blankets, toys can be dropped at any center</p>
+                <p><span class="method-label">Items Needed in Morocco:</span> Quality cat food, veterinary supplies, carriers, heating pads</p>
+                <p style="margin-top: 10px;"><em>We provide donation receipts for all contributions in Morocco. Registered Moroccan association.</em></p>
+            </div>
+
+            <h3>Specific Information</h3>
+            <ul>
+                <li>We work with local municipalities across Morocco for stray cat management</li>
+                <li>All cats are vaccinated and microchipped according to Moroccan veterinary standards</li>
+                <li>We provide adoption contracts in both French and Arabic</li>
+                <li>Home checks are conducted to ensure safe environments for cats in Morocco</li>
+                <li>We collaborate with Moroccan veterinary schools for spay/neuter programs</li>
+            </ul>
+
+            <p style="margin-top: 25px; text-align: center; font-style: italic;">
+                Thank you for considering supporting our mission in Morocco. Every message, call, and inquiry helps us save more cats and find them loving homes across the country.
+            </p>
+        </div>
+    </div>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/contact.js"></script>
+</body>
+</html>

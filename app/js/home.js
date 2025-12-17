@@ -1,50 +1,17 @@
-// Global variables for filtering and pagination
+// Global variables for home page
 let allCats = [];
 let filteredCats = [];
 let currentPage = 1;
 const catsPerPage = 8;
 
-// Initialize everything when page loads
+// Initialize home page
 document.addEventListener("DOMContentLoaded", () => {
+    initAuth();
+    initPopups();
     initCatForm();
     initFilters();
     loadCats();
 });
-
-// Popup functions
-function showPopup(message) {
-    document.getElementById("popupMessage").textContent = message;
-    document.getElementById("popupContainer").style.display = "flex";
-}
-
-function showConfirm(message) {
-    return new Promise((resolve) => {
-        document.getElementById("confirmMessage").textContent = message;
-        document.getElementById("confirmPopup").style.display = "flex";
-        
-        const yesBtn = document.getElementById("confirmYes");
-        const noBtn = document.getElementById("confirmNo");
-        
-        const handleYes = () => {
-            cleanup();
-            resolve(true);
-        };
-        
-        const handleNo = () => {
-            cleanup();
-            resolve(false);
-        };
-        
-        const cleanup = () => {
-            yesBtn.removeEventListener("click", handleYes);
-            noBtn.removeEventListener("click", handleNo);
-            document.getElementById("confirmPopup").style.display = "none";
-        };
-        
-        yesBtn.addEventListener("click", handleYes);
-        noBtn.addEventListener("click", handleNo);
-    });
-}
 
 // Initialize cat form functionality
 function initCatForm() {
@@ -99,11 +66,6 @@ function initCatForm() {
         } else {
             await addCat(catData);
         }
-    });
-    
-    // Popup OK button
-    document.getElementById("popupOk").addEventListener("click", () => {
-        document.getElementById("popupContainer").style.display = "none";
     });
 }
 
@@ -196,6 +158,7 @@ function displayCurrentPage() {
     
     // Add event listeners
     addCardEventListeners();
+    updateActionButtons();
     
     // Update pagination
     updatePagination(totalPages);
@@ -208,6 +171,10 @@ function addCardEventListeners() {
     // Add event listeners for delete buttons
     grid.querySelectorAll(".deleteBtn").forEach((btn) => {
         btn.addEventListener("click", (e) => {
+            if (!isAdmin) {
+                showPopup("Admin privileges required");
+                return;
+            }
             const catId = e.target.dataset.id;
             deleteCat(catId);
         });
@@ -216,6 +183,10 @@ function addCardEventListeners() {
     // Add event listeners for edit buttons
     grid.querySelectorAll(".editBtn").forEach((btn) => {
         btn.addEventListener("click", async (e) => {
+            if (!isAdmin) {
+                showPopup("Admin privileges required");
+                return;
+            }
             const catId = e.target.dataset.id;
             
             try {

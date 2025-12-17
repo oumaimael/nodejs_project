@@ -1,0 +1,91 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+/* Main Container */
+.main-container {
+    width: 75%;
+    margin: 25px auto 0;
+    padding: 0 16px;
+}
+
+h1 {
+    margin: 0 0 20px 0;
+    text-align: center;
+    color: #333;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.form-actions button {
+    flex: 1;
+    padding: 8px 10px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 14px;
+}
+
+.form-actions button:hover {
+    background: #f5f5f5;
+}
+
+/* Button Styles */
+button {
+    padding: 8px 16px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 14px;
+}
+
+button:hover {
+    background: #f5f5f5;
+}
+
+/* Admin-only elements */
+.admin-only {
+    display: none;
+}
+
+.admin-only.visible {
+    display: block;
+}
