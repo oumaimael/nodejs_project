@@ -1,6 +1,11 @@
+// Global variables for filtering
+let allCats = [];
+let currentTags = [];
+
 // Initialize everything when page loads
 document.addEventListener("DOMContentLoaded", () => {
     initCatForm();
+    initFilters();
     loadCats();
 });
 
@@ -97,6 +102,127 @@ function initCatForm() {
     // Popup OK button
     document.getElementById("popupOk").addEventListener("click", () => {
         document.getElementById("popupContainer").style.display = "none";
+    });
+}
+
+// Initialize filter functionality
+function initFilters() {
+    // Search input event
+    document.getElementById("searchInput").addEventListener("input", () => {
+        filterCats();
+    });
+    
+    // Tag filter event
+    document.getElementById("tagFilter").addEventListener("change", () => {
+        filterCats();
+    });
+    
+    // Clear filters button
+    document.getElementById("clearFilters").addEventListener("click", () => {
+        document.getElementById("searchInput").value = "";
+        document.getElementById("tagFilter").value = "";
+        filterCats();
+    });
+}
+
+// Filter cats based on search and tag
+function filterCats() {
+    const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+    const selectedTag = document.getElementById("tagFilter").value;
+    
+    const filteredCats = allCats.filter(cat => {
+        // Search filter
+        const matchesSearch = searchTerm === "" || 
+            (cat.name && cat.name.toLowerCase().includes(searchTerm)) ||
+            (cat.description && cat.description.toLowerCase().includes(searchTerm));
+        
+        // Tag filter
+        const matchesTag = selectedTag === "" || cat.tag === selectedTag;
+        
+        return matchesSearch && matchesTag;
+    });
+    
+    displayCats(filteredCats);
+}
+
+// Display cats in grid
+function displayCats(cats) {
+    const grid = document.getElementById("grid");
+    
+    if (!Array.isArray(cats) || cats.length == 0) {
+        grid.textContent = "No cats found matching your search.";
+        return;
+    }
+
+    grid.innerHTML = cats
+        .map((c) => {
+            const name = c.name ?? "";
+            const description = c.description ?? "";
+            const tag = c.tag ?? "";
+            const img = c.img ?? "";
+            return `
+                <div class="card">
+                    <div class="imgWrap">
+                        ${
+                            img
+                                ? `<img src="${img}" alt="${name}" />`
+                                : `<div class="imgFallback">No image</div>`
+                        }
+                    </div>
+                    <h3>${name}</h3>
+                    <p>${description}</p>
+                    ${tag ? `<div class="tag">${tag}</div>` : ""}
+                    <div class="actions">
+                        <button class="editBtn" data-id="${c.id}">Edit</button>
+                        <button class="deleteBtn" data-id="${c.id}">Delete</button>
+                    </div>
+                </div>
+            `;
+        })
+        .join("");
+
+    // Add event listeners for delete buttons
+    grid.querySelectorAll(".deleteBtn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+            const catId = e.target.dataset.id;
+            deleteCat(catId);
+        });
+    });
+
+    // Add event listeners for edit buttons
+    grid.querySelectorAll(".editBtn").forEach((btn) => {
+        btn.addEventListener("click", async (e) => {
+            const catId = e.target.dataset.id;
+            
+            try {
+                const res = await fetch(`http://localhost:5000/cats/${catId}`);
+                if (res.ok) {
+                    const cat = await res.json();
+                    setupEditMode(cat);
+                } else {
+                    showPopup("Failed to load cat data for editing.");
+                }
+            } catch (err) {
+                showPopup("Error loading cat data. Please check your connection.");
+                console.error(err);
+            }
+        });
+    });
+}
+
+// Update tag filter options
+function updateTagFilter(tags) {
+    const tagFilter = document.getElementById("tagFilter");
+    const currentOptions = Array.from(tagFilter.options).map(opt => opt.value);
+    
+    // Add new tags that aren't already in the filter
+    tags.forEach(tag => {
+        if (tag && !currentOptions.includes(tag)) {
+            const option = document.createElement("option");
+            option.value = tag;
+            option.textContent = tag;
+            tagFilter.appendChild(option);
+        }
     });
 }
 
@@ -201,126 +327,22 @@ async function loadCats() {
 
     try {
         const res = await fetch("http://localhost:5000/cats");
-        const cats = await res.json();
+        allCats = await res.json();
 
-        if (!Array.isArray(cats) || cats.length == 0) {
+        if (!Array.isArray(allCats) || allCats.length == 0) {
             grid.textContent = "No cats found.";
             return;
         }
 
-        grid.innerHTML = cats
-            .map((c) => {
-                const name = c.name ?? "";
-                const description = c.description ?? "";
-                const tag = c.tag ?? "";
-                const img = c.img ?? "";
-                return `
-                    <div class="card">
-                        <div class="imgWrap">
-                            ${
-                                img
-                                    ? `<img src="${img}" alt="${name}" />`
-                                    : `<div class="imgFallback">No image</div>`
-                            }
-                        </div>
-                        <h3>${name}</h3>
-                        <p>${description}</p>
-                        ${tag ? `<div class="tag">${tag}</div>` : ""}
-                        <div class="actions">
-                            <button class="editBtn" data-id="${c.id}">Edit</button>
-                            <button class="deleteBtn" data-id="${c.id}">Delete</button>
-                        </div>
-                    </div>
-                `;
-            })
-            .join("");
-
-        // Add event listeners for delete buttons
-        grid.querySelectorAll(".deleteBtn").forEach((btn) => {
-            btn.addEventListener("click", (e) => {
-                const catId = e.target.dataset.id;
-                deleteCat(catId);
-            });
-        });
-
-        // Add event listeners for edit buttons
-        grid.querySelectorAll(".editBtn").forEach((btn) => {
-            btn.addEventListener("click", async (e) => {
-                const catId = e.target.dataset.id;
-                
-                try {
-                    const res = await fetch(`http://localhost:5000/cats/${catId}`);
-                    if (res.ok) {
-                        const cat = await res.json();
-                        setupEditMode(cat);
-                    } else {
-                        showPopup("Failed to load cat data for editing.");
-                    }
-                } catch (err) {
-                    showPopup("Error loading cat data. Please check your connection.");
-                    console.error(err);
-                }
-            });
-        });
+        // Extract unique tags from all cats
+        const tags = [...new Set(allCats.map(cat => cat.tag).filter(tag => tag && tag.trim() !== ""))];
+        updateTagFilter(tags);
+        
+        // Display all cats initially
+        displayCats(allCats);
 
     } catch (err) {
         grid.textContent = "Failed to load cats.";
         console.error(err);
     }
 }
-
-/*async function loadCats() {
-    const grid = document.getElementById("grid");
-    grid.textContent = "Loading...";
-
-    try {
-        const res = await fetch("http://localhost:5000/cats");
-        const cats = await res.json();
-
-        if (!Array.isArray(cats) || cats.length == 0) {
-            grid.textContent = "No cats found.";
-            return;
-        }
-
-        grid.innerHTML = cats
-            .map((c) => {
-                const name = c.name ?? "";
-                const description = c.description ?? "";
-                const tag = c.tag ?? "";
-                const img = c.img ?? "";
-                return `
-                    <div class="card">
-                        <div class="imgWrap">
-                            ${
-                                img
-                                    ? `<img src="${img}" alt="${name}" />`
-                                    : `<div class="imgFallback">No image</div>`
-                            }
-                        </div>
-                        <h3>${name}</h3>
-                        <p>${description}</p>
-                        ${tag ? `<div class="tag">${tag}</div>` : ""}
-                        <div class="actions">
-                            <button class="editBtn" data-id="${c.id}">Edit</button>
-                            <button class="deleteBtn" data-id="${c.id}">Delete</button>
-                        </div>
-                    </div>
-                `;
-            })
-            .join("");
-
-             grid.querySelectorAll(".deleteBtn").forEach((btn) => {
-            btn.addEventListener("click", (e) => {
-                const catId = e.target.dataset.id;
-                deleteCat(catId);
-            });
-        });
-
-    } catch (err) {
-        grid.textContent = "Failed to load cats.";
-        console.error(err);
-    }
-
-}
-loadCats();
-*/

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cats App</title>
+    <title>Cats Adoption</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -28,37 +28,22 @@
         </div>
     </div>
 
-    <!-- Edit Cat Popup -->
-    <div id="editCatPopup" class="popup-overlay">
-        <div id="editCatBox" class="popup-box">
-            <h3>Edit Cat</h3>
-            <form id="editCatForm">
-                <div class="edit-form-group">
-                    <label for="editCatName">Name: </label>
-                    <input type="text" id="editCatName" required>
-                </div>
-                <div class="edit-form-group">
-                    <label for="editCatDescription">Description: </label>
-                    <input type="text" id="editCatDescription">
-                </div>
-                <div class="edit-form-group">
-                    <label for="editCatTag">Tag: </label>
-                    <input type="text" id="editCatTag">
-                </div>
-                <div class="edit-form-group">
-                    <label for="editCatImage">Image URL: </label>
-                    <input type="text" id="editCatImage">
-                </div>
-                <div class="edit-form-actions">
-                    <button type="submit">Update Cat</button>
-                    <button type="button" id="cancelEditBtn">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <div class="main-container">
         <h1>Cats Gallery</h1>
+        
+        <!-- Filter and Search Section -->
+        <div class="filter-section">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search cats by name or description...">
+            </div>
+            <div class="filter-container">
+                <select id="tagFilter">
+                    <option value="">All Tags</option>
+                    <!-- Tags will be populated by JavaScript -->
+                </select>
+                <button id="clearFilters">Clear Filters</button>
+            </div>
+        </div>
         
         <div id="addCatFormContainer">
             <button id="showAddFormBtn">Add New Cat</button>
