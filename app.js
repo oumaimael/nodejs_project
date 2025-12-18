@@ -123,6 +123,102 @@ app.put("/cats/:id", (req, res) => {
 });
 
 
+
+//get user from db
+
+app.get("/users", (req, res) => {
+    pool.getConnection((err, connection) => {
+        if(err){
+            console.error("DB connection error:", err);
+            return res.status(500).json({error: "DB connection error"});
+        }
+        connection.query("SELECT * From users", (qErr, rows) => {
+            connection.release();
+            if (qErr){
+                console.error("Query error:", qErr);
+                return res.status(500).json({error: "Query error"});
+            }
+            res.json(rows);
+        });
+    });
+});
+
+//get user by id
+app.get("/users/:id", (req, res) =>{
+    pool.getConnection((err, connection) => {
+        if (err){
+            console.error("DB connection error:", err);
+            return res.status(500).json({ error: "DB connection error"});
+        }
+        connection.query("SELECT * FROM users where id = ?", [req.params.id], (qErr, rows) => {
+            const sql = "SELECT * FROM users WHERE id =" + req.query.id;
+            connection.release();
+            if(qErr){
+                console.error("Query error:", qErr);
+                return res.status(500).json({error: "Query error"});
+            }
+            res.json(rows);
+        });
+    });
+});
+
+//add a user
+app.post("/users", (req, res) => {
+    const {userName, email, password}  = req.body;
+    pool.getConnection((err, connection) => {
+        if(err) {
+            console.error("DB connection error:", err);
+            return res.status(500).json({error : "DB connection error"});
+        }
+        connection.query("INSERT INTO users (userName, email, password) VALUES (?, ?, ?)", [userName, email, password], (qErr, rows) => {
+            connection.release();
+            if(qErr) {
+                console.error("Query error:", qErr);
+                return res.status(500).json({error: "Query error"});
+            }
+            res.json(rows);
+        })
+    })
+});
+//delete user
+app.delete("/users/:id", (req, res) =>{
+    pool.getConnection((err, connection) => {
+        if (err){
+            console.error("DB connection error:", err);
+            return res.status(500).json({ error: "DB connection error"});
+        }
+        connection.query("DELETE FROM users where id = ?", [req.params.id], (qErr, rows) => {
+            connection.release();
+            if(qErr){
+                console.error("Query error", qErr);
+                return res.status(500).json({ error: "Query error" });
+            }
+            res.json({message: `record Num : ${req.params.id} deleted successfully`});
+        });
+    });
+});
+
+
+// Update user
+app.put("/users/:id", (req, res) => {
+    const {userName, email, password}  = req.body;
+    pool.getConnection((err, connection) => {
+        if(err) {
+            console.error("DB connection error:", err);
+            return res.status(500).json({error : "DB connection error"})
+        }
+        connection.query("UPDATE users SET userName = ?, email = ?, password = ? WHERE id = ?", [userName, email, password, req.params.id], (qErr, rows) => {
+            connection.release();
+            if(qErr) {
+                console.error("Query error:", qErr);
+                return res.status(500).json({error: "Query error"});
+            }
+            res.json(`Message: Record Num : ${req.params.id} updated successfully`);
+        })
+    })
+});
+
+
 //listen to port
 app.listen(port, () => {
     console.log(`server is running on port ${port}`);
