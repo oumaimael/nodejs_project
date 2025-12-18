@@ -80,26 +80,53 @@ function setupAddMode() {
 }
 
 // Setup edit mode in the form
+
 function setupEditMode(cat) {
     const modal = document.getElementById("catFormModal");
     const form = document.getElementById("catForm");
     const formTitle = document.getElementById("catFormTitle");
     const submitBtn = document.getElementById("catFormSubmit");
     
+    // Debug: Log the cat object structure
+    console.log("Full cat object:", cat);
+    console.log("Available properties:", Object.keys(cat));
+    
     // Set to edit mode
     form.dataset.mode = "edit";
-    form.dataset.editId = cat.id;
+    
+    // Try different possible ID properties (common variations)
+    const catId = cat.id || cat._id || cat.Id || cat.ID;
+    form.dataset.editId = catId;
+    console.log("Using cat ID:", catId);
+    
     formTitle.textContent = "Edit Cat";
     submitBtn.textContent = "Update Cat";
     
+    // Try different possible property names (case insensitive)
+    const catName = cat.name || cat.Name || cat.NAME || "";
+    const catDescription = cat.description || cat.Description || cat.DESCRIPTION || "";
+    const catTag = cat.tag || cat.Tag || cat.TAG || "";
+    const catImage = cat.img || cat.image || cat.Img || cat.Image || "";
+    
+    console.log("Setting form values:", { catName, catDescription, catTag, catImage });
+    
     // Fill form with cat data
-    document.getElementById("catName").value = cat.name || "";
-    document.getElementById("catDescription").value = cat.description || "";
-    document.getElementById("catTag").value = cat.tag || "";
-    document.getElementById("catImage").value = cat.img || "";
+    document.getElementById("catName").value = catName;
+    document.getElementById("catDescription").value = catDescription;
+    document.getElementById("catTag").value = catTag;
+    document.getElementById("catImage").value = catImage;
     
     // Show modal
     modal.style.display = "flex";
+    
+    // Verify values are set
+    setTimeout(() => {
+        console.log("Actual form values:");
+        console.log("Name:", document.getElementById("catName").value);
+        console.log("Description:", document.getElementById("catDescription").value);
+        console.log("Tag:", document.getElementById("catTag").value);
+        console.log("Image:", document.getElementById("catImage").value);
+    }, 100);
 }
 
 // Initialize filter functionality
@@ -208,27 +235,43 @@ function addCardEventListeners() {
 
     // Add event listeners for edit buttons
     grid.querySelectorAll(".editBtn").forEach((btn) => {
-        btn.addEventListener("click", async (e) => {
-            if (!isAdmin) {
-                showPopup("Admin privileges required");
-                return;
-            }
-            const catId = e.target.dataset.id;
+    btn.addEventListener("click", async (e) => {
+        if (!isAdmin) {
+            showPopup("Admin privileges required");
+            return;
+        }
+        const catId = e.target.dataset.id;
+        
+        try {
+            const res = await fetch(`http://localhost:5000/cats/${catId}`);
             
-            try {
-                const res = await fetch(`http://localhost:5000/cats/${catId}`);
-                if (res.ok) {
-                    const cat = await res.json();
-                    setupEditMode(cat);
+            if (res.ok) {
+                const cat = await res.json();
+                
+                // Handle both array and object responses
+                let catData;
+                if (Array.isArray(cat) && cat.length > 0) {
+                    // If response is an array, take first element (like working app)
+                    catData = cat[0];
+                } else if (typeof cat === 'object' && cat !== null) {
+                    // If response is an object, use it directly
+                    catData = cat;
                 } else {
-                    showPopup("Failed to load cat data for editing.");
+                    showPopup("Invalid cat data received from server.");
+                    return;
                 }
-            } catch (err) {
-                showPopup("Error loading cat data. Please check your connection.");
-                console.error(err);
+                
+                console.log("Cat data to edit:", catData);
+                setupEditMode(catData);
+            } else {
+                showPopup("Failed to load cat data for editing.");
             }
-        });
+        } catch (err) {
+            showPopup("Error loading cat data. Please check your connection.");
+            console.error(err);
+        }
     });
+});
 }
 
 // Update pagination controls
@@ -324,6 +367,7 @@ async function addCat(catData) {
 }
 
 // Update cat function
+
 async function updateCat(catId, catData) {
     try {
         const res = await fetch(`http://localhost:5000/cats/${catId}`, {
@@ -335,6 +379,9 @@ async function updateCat(catId, catData) {
         });
 
         if (res.ok) {
+            const result = await res.json();
+            console.log("Update successful:", result);
+            showPopup("Cat updated successfully!");
             loadCats();
         } else {
             showPopup("Failed to update cat. Please try again.");
@@ -345,6 +392,7 @@ async function updateCat(catId, catData) {
         console.error(err);
     }
 }
+
 
 // Delete cat function
 async function deleteCat(catId) {
