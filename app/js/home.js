@@ -21,19 +21,16 @@ function initCatForm() {
     
     // Show form button
     document.getElementById("showAddFormBtn").addEventListener("click", () => {
-        // Reset to add mode
         addForm.dataset.mode = "add";
         addForm.dataset.editId = "";
         addFormTitle.textContent = "Add New Cat";
         submitBtn.textContent = "Add Cat";
         
-        // Clear form
         document.getElementById("catName").value = "";
         document.getElementById("catDescription").value = "";
         document.getElementById("catTag").value = "";
         document.getElementById("catImage").value = "";
         
-        // Show form
         document.getElementById("addCatForm").style.display = "block";
     });
     
@@ -71,19 +68,16 @@ function initCatForm() {
 
 // Initialize filter functionality
 function initFilters() {
-    // Search input event
     document.getElementById("searchInput").addEventListener("input", () => {
         currentPage = 1;
         filterCats();
     });
     
-    // Tag filter event
     document.getElementById("tagFilter").addEventListener("change", () => {
         currentPage = 1;
         filterCats();
     });
     
-    // Clear filters button
     document.getElementById("clearFilters").addEventListener("click", () => {
         document.getElementById("searchInput").value = "";
         document.getElementById("tagFilter").value = "";
@@ -98,12 +92,10 @@ function filterCats() {
     const selectedTag = document.getElementById("tagFilter").value;
     
     filteredCats = allCats.filter(cat => {
-        // Search filter
         const matchesSearch = searchTerm === "" || 
             (cat.name && cat.name.toLowerCase().includes(searchTerm)) ||
             (cat.description && cat.description.toLowerCase().includes(searchTerm));
         
-        // Tag filter
         const matchesTag = selectedTag === "" || cat.tag === selectedTag;
         
         return matchesSearch && matchesTag;
@@ -156,11 +148,9 @@ function displayCurrentPage() {
         })
         .join("");
     
-    // Add event listeners
     addCardEventListeners();
     updateActionButtons();
     
-    // Update pagination
     updatePagination(totalPages);
 }
 

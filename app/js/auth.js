@@ -1,11 +1,24 @@
 // Global authentication state
 let isAdmin = false;
 
-// Simple admin credentials
-const ADMIN_CREDENTIALS = {
-    username: "admin",
-    password: "admin123"
-};
+// Admin credentials will be fetched from API
+let ADMIN_CREDENTIALS = [];
+
+// Fetch admin users from API
+async function fetchAdminUsers() {
+    try {
+        const response = await fetch('http://localhost:5000/users');
+        if (!response.ok) {
+            throw new Error('Failed to fetch users');
+        }
+        ADMIN_CREDENTIALS = await response.json();
+        console.log('Admin users loaded:', ADMIN_CREDENTIALS);
+    } catch (error) {
+        console.error('Error fetching admin users:', error);
+        // Fallback to empty array if API fails
+        ADMIN_CREDENTIALS = [];
+    }
+}
 
 // Check admin status from localStorage
 function checkAdminStatus() {
@@ -73,8 +86,25 @@ function logout() {
     }
 }
 
+// Validate login credentials against fetched admin users
+function validateLogin(username, password) {
+    if (!Array.isArray(ADMIN_CREDENTIALS)) {
+        console.error('ADMIN_CREDENTIALS is not an array:', ADMIN_CREDENTIALS);
+        return false;
+    }
+    
+    const validUser = ADMIN_CREDENTIALS.find(user => 
+        user.userName === username && user.password === password
+    );
+    
+    return validUser !== undefined;
+}
+
 // Initialize authentication
-function initAuth() {
+async function initAuth() {
+    // First, fetch admin users from API
+    await fetchAdminUsers();
+    
     const loginBtn = document.getElementById("loginBtn");
     const logoutBtn = document.getElementById("logoutBtn");
     
@@ -96,7 +126,7 @@ function initAuth() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
             
-            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+            if (validateLogin(username, password)) {
                 login();
                 document.getElementById("loginModal").style.display = "none";
                 loginForm.reset();
@@ -121,3 +151,6 @@ function initAuth() {
     // Check initial admin status
     checkAdminStatus();
 }
+
+// Make sure to call initAuth() when your page loads
+document.addEventListener('DOMContentLoaded', initAuth);
