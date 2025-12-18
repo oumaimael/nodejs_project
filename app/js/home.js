@@ -15,32 +15,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Initialize cat form functionality
 function initCatForm() {
-    const addForm = document.getElementById("catForm");
-    const addFormTitle = document.getElementById("addCatForm").querySelector("h3");
-    const submitBtn = addForm.querySelector("button[type='submit']");
+    const modal = document.getElementById("catFormModal");
+    const form = document.getElementById("catForm");
+    const formTitle = document.getElementById("catFormTitle");
+    const submitBtn = document.getElementById("catFormSubmit");
     
     // Show form button
     document.getElementById("showAddFormBtn").addEventListener("click", () => {
-        addForm.dataset.mode = "add";
-        addForm.dataset.editId = "";
-        addFormTitle.textContent = "Add New Cat";
-        submitBtn.textContent = "Add Cat";
-        
-        document.getElementById("catName").value = "";
-        document.getElementById("catDescription").value = "";
-        document.getElementById("catTag").value = "";
-        document.getElementById("catImage").value = "";
-        
-        document.getElementById("addCatForm").style.display = "block";
+        setupAddMode();
+        modal.style.display = "flex";
     });
     
     // Cancel button
-    document.getElementById("cancelAddBtn").addEventListener("click", () => {
-        document.getElementById("addCatForm").style.display = "none";
+    document.getElementById("cancelCatForm").addEventListener("click", () => {
+        modal.style.display = "none";
     });
     
     // Form submit
-    addForm.addEventListener("submit", async (e) => {
+    form.addEventListener("submit", async (e) => {
         e.preventDefault();
         
         const catData = {
@@ -55,15 +47,59 @@ function initCatForm() {
             return;
         }
         
-        const mode = e.target.dataset.mode;
-        const editId = e.target.dataset.editId;
+        const mode = form.dataset.mode;
+        const editId = form.dataset.editId;
         
         if (mode === "edit" && editId) {
             await updateCat(editId, catData);
         } else {
             await addCat(catData);
         }
+        
+        modal.style.display = "none";
     });
+}
+
+// Setup add mode in the form
+function setupAddMode() {
+    const form = document.getElementById("catForm");
+    const formTitle = document.getElementById("catFormTitle");
+    const submitBtn = document.getElementById("catFormSubmit");
+    
+    // Set to add mode
+    form.dataset.mode = "add";
+    form.dataset.editId = "";
+    formTitle.textContent = "Add New Cat";
+    submitBtn.textContent = "Add Cat";
+    
+    // Clear form fields
+    document.getElementById("catName").value = "";
+    document.getElementById("catDescription").value = "";
+    document.getElementById("catTag").value = "";
+    document.getElementById("catImage").value = "";
+}
+
+// Setup edit mode in the form
+function setupEditMode(cat) {
+    const modal = document.getElementById("catFormModal");
+    const form = document.getElementById("catForm");
+    const formTitle = document.getElementById("catFormTitle");
+    const submitBtn = document.getElementById("catFormSubmit");
+    
+    // Set to edit mode
+    form.dataset.mode = "edit";
+    form.dataset.editId = cat.id;
+    formTitle.textContent = "Edit Cat";
+    submitBtn.textContent = "Update Cat";
+    
+    // Fill form with cat data
+    document.getElementById("catName").value = cat.name || "";
+    document.getElementById("catDescription").value = cat.description || "";
+    document.getElementById("catTag").value = cat.tag || "";
+    document.getElementById("catImage").value = cat.img || "";
+    
+    // Show modal
+    modal.style.display = "flex";
 }
 
 // Initialize filter functionality
@@ -276,8 +312,6 @@ async function addCat(catData) {
         });
 
         if (res.ok) {
-            // Hide form and reload cats
-            document.getElementById("addCatForm").style.display = "none";
             loadCats();
         } else {
             showPopup("Failed to add cat. Please try again.");
@@ -301,8 +335,6 @@ async function updateCat(catId, catData) {
         });
 
         if (res.ok) {
-            // Hide form and reload cats
-            document.getElementById("addCatForm").style.display = "none";
             loadCats();
         } else {
             showPopup("Failed to update cat. Please try again.");
@@ -334,28 +366,6 @@ async function deleteCat(catId) {
         showPopup("Error deleting cat. Please check your connection.");
         console.error(err);
     }
-}
-
-// Setup edit mode in the form
-function setupEditMode(cat) {
-    const form = document.getElementById("catForm");
-    const formTitle = document.getElementById("addCatForm").querySelector("h3");
-    const submitBtn = form.querySelector("button[type='submit']");
-    
-    // Set to edit mode
-    form.dataset.mode = "edit";
-    form.dataset.editId = cat.id;
-    formTitle.textContent = "Edit Cat";
-    submitBtn.textContent = "Update Cat";
-    
-    // Fill form with cat data
-    document.getElementById("catName").value = cat.name || "";
-    document.getElementById("catDescription").value = cat.description || "";
-    document.getElementById("catTag").value = cat.tag || "";
-    document.getElementById("catImage").value = cat.img || "";
-    
-    // Show form
-    document.getElementById("addCatForm").style.display = "block";
 }
 
 // Load cats function
