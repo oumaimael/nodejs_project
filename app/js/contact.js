@@ -1,9 +1,12 @@
 // Initialize contact page
 document.addEventListener("DOMContentLoaded", () => {
     initAuth();
+    initPopups(); // Initialize popups
     initContactForm();
     highlightCurrentPage();
+    initEmergencyNotice();
 });
+
 
 // Highlight current page in navbar
 function highlightCurrentPage() {
@@ -19,7 +22,7 @@ function highlightCurrentPage() {
     });
 }
 
-// Initialize contact form
+// Initialize contact form - UPDATED to use your popup system
 function initContactForm() {
     const contactForm = document.getElementById('contactForm');
     
@@ -39,26 +42,25 @@ function initContactForm() {
             catInfo: document.getElementById('contact-cat').value.trim()
         };
         
-        // Validate required fields
+        // Validate required fields - using your showPopup function
         if (!formData.purpose) {
-            alert('Please select a reason for contacting us.');
+            showPopup('Please select a reason for contacting us.');
             return;
         }
         
         if (!formData.name || !formData.email || !formData.message) {
-            alert('Please fill in all required fields (Name, Email, Message).');
+            showPopup('Please fill in all required fields (Name, Email, Message).');
             return;
         }
         
-        // Email validation
+        // Email validation - using your showPopup function
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
-            alert('Please enter a valid email address.');
+            showPopup('Please enter a valid email address.');
             return;
         }
         
-        // In a real application, this would send to a server
-        // For now, we'll simulate success
+        // Simulate form submission
         simulateFormSubmission(formData);
     });
     
@@ -101,7 +103,6 @@ function updateFormBasedOnPurpose(purpose) {
     }
 }
 
-// Simulate form submission (in real app, this would be a fetch request)
 function simulateFormSubmission(formData) {
     // Show loading state
     const submitBtn = document.querySelector('#contactForm button[type="submit"]');
@@ -111,8 +112,27 @@ function simulateFormSubmission(formData) {
     
     // Simulate API call
     setTimeout(() => {
-        // Show success message
-        alert(`Thank you, ${formData.name}! Your message has been received.\n\nWe will contact you at ${formData.email} within 24-48 hours regarding your ${formData.purpose} inquiry.`);
+        const successMessage = `Thank you, ${formData.name}! Your message has been received.\n\nWe will contact you at ${formData.email} within 24-48 hours regarding your ${formData.purpose} inquiry.`;
+        
+        const successDiv = document.getElementById('successMessage');
+        const successContent = document.getElementById('successMessageContent');
+        
+        if (successDiv && successContent) {
+            successContent.textContent = successMessage;
+            successDiv.style.display = 'block';
+            successDiv.classList.add('show');
+            
+            successDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            setTimeout(() => {
+                successDiv.classList.remove('show');
+                setTimeout(() => {
+                    successDiv.style.display = 'none';
+                }, 500);
+            }, 10000);
+        } else {
+            showPopup(successMessage);
+        }
         
         // Reset form
         document.getElementById('contactForm').reset();
@@ -121,43 +141,49 @@ function simulateFormSubmission(formData) {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
         
-        // Log to console (for debugging)
         console.log('Form submitted:', formData);
         
-        // In a real application, you would send this to your server:
-        /*
-        fetch('/api/contact', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert('Thank you! Your message has been sent.');
-            document.getElementById('contactForm').reset();
-        })
-        .catch(error => {
-            alert('Sorry, there was an error sending your message. Please try again or call us.');
-        })
-        .finally(() => {
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-        });
-        */
-        
-    }, 1500);
+    }, 1500); 
 }
 
-// Add some dynamic behavior for emergency notice
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize emergency notice 
+function initEmergencyNotice() {
     const emergencyNotice = document.querySelector('.emergency-notice');
     if (emergencyNotice) {
         emergencyNotice.addEventListener('click', () => {
-            if (confirm('For immediate emergency assistance, call our 24/7 line: (555) 911-CATS\n\nCall now?')) {
-                window.location.href = 'tel:+15559112287';
+            showConfirm('For immediate emergency assistance, call our 24/7 line: (555) 911-CATS\n\nCall now?')
+                .then(result => {
+                    if (result) {
+                        window.location.href = 'tel:+212522123456';
+                    }
+                });
+        });
+    }
+}
+
+// Initialize authentication (if needed)
+function initAuth() {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple authentication - replace with real authentication
+            if (username === 'admin' && password === 'password') {
+                showPopup('Login successful!');
+                document.getElementById('loginModal').style.display = 'none';
+            } else {
+                showPopup('Invalid username or password');
             }
         });
     }
-});
+    
+    const cancelLogin = document.getElementById('cancelLogin');
+    if (cancelLogin) {
+        cancelLogin.addEventListener('click', () => {
+            document.getElementById('loginModal').style.display = 'none';
+        });
+    }
+}

@@ -79,7 +79,7 @@
 #grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(220px, 1fr));
-    gap: 12px;
+    gap: 8px;
     min-height: 375px;
     border: 1px dashed #ccc;
     padding: 12px;

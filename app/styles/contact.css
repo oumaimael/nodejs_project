@@ -1,5 +1,4 @@
-/* Contact Page Styles */
-.contact-content {
+/.contact-content {
     padding: 30px;
     border: 1px solid #ddd;
     border-radius: 10px;
@@ -191,4 +190,30 @@ textarea {
 textarea:focus {
     outline: none;
     border-color: #999;
+}
+
+
+.success-message {
+    background-color: #e7f3ff;
+    border-left: 4px solid #4a90e2;
+    padding: 15px 20px;
+    margin: 20px 0;
+    border-radius: 6px;
+    color: #333;
+    line-height: 1.5;
+    font-size: 16px;
+}
+
+.success-message.show {
+    display: block !important;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.success-message #successMessageContent {
+    white-space: pre-line;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
