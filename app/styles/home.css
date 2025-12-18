@@ -1,10 +1,9 @@
-
 .hero-section {
     background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
                 url('https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
     background-size: cover;
     background-position: center;
-    padding: 80px 20px;
+    padding: 60px 20px;
     text-align: center;
     margin-bottom: 30px;
 }
@@ -41,7 +40,7 @@
 
 .hero-button {
     display: inline-block;
-    padding: 12px 30px;
+    padding: 12px 25px;
     color: white;
     text-decoration: none;
     border-radius: 6px;
@@ -50,6 +49,8 @@
     border: none;
     cursor: pointer;
     font-size: 16px;
+    min-width: 160px;
+    text-align: center;
 }
 
 .meet-cats-btn {
@@ -67,9 +68,6 @@
 .adopt-cat-btn:hover {
     background: #3a5a8c;
 }
-
-
-
 
 /* Filter and Search Section */
 .filter-section {
@@ -96,10 +94,12 @@
     display: flex;
     gap: 12px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 #tagFilter {
     flex: 1;
+    min-width: 200px;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 6px;
@@ -131,6 +131,7 @@
     border: 1px solid #ddd;
     border-radius: 6px;
     background: #fff;
+    font-size: 14px;
 }
 
 /* Cat Form Modal */
@@ -145,16 +146,20 @@
     z-index: 1000;
     justify-content: center;
     align-items: center;
+    padding: 20px;
 }
 
 .cat-form-box {
     background: white;
-    padding: 30px;
+    padding: 25px;
     border-radius: 10px;
-    min-width: 400px;
+    min-width: 300px;
     max-width: 500px;
+    width: 100%;
     border: 1px solid #ddd;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .cat-form-box h3 {
@@ -167,11 +172,11 @@
 /* Grid and Cards */
 #grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(220px, 1fr));
-    gap: 8px;
-    min-height: 375px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    min-height: 300px;
     border: 1px dashed #ccc;
-    padding: 12px;
+    padding: 15px;
     margin-top: 20px;
     background: #fff;
     border-radius: 10px;
@@ -193,7 +198,7 @@
 }
 
 .imgWrap {
-    height: 140px;
+    height: 180px;
     border-radius: 8px;
     overflow: hidden;
     background: #f3f3f3;
@@ -225,7 +230,8 @@
     color: #444;
     font-size: 14px;
     line-height: 1.35;
-    min-height: 36px;
+    min-height: 38px;
+    flex-grow: 1;
 }
 
 .tag {
@@ -251,6 +257,7 @@
     border: 1px solid #ddd;
     border-radius: 6px;
     background: #fff;
+    font-size: 14px;
 }
 
 /* Pagination Styles */
@@ -265,7 +272,7 @@
 
 .pagination-buttons {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
@@ -298,3 +305,128 @@
     color: #666;
 }
 
+@media (max-width: 1024px) {
+    #grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+    
+    .hero-content h1 {
+        font-size: 32px;
+    }
+    
+    .hero-content p {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 40px 15px;
+    }
+    
+    .hero-content h1 {
+        font-size: 28px;
+    }
+    
+    .hero-content p {
+        font-size: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .hero-button {
+        padding: 10px 20px;
+        font-size: 15px;
+        min-width: 140px;
+    }
+    
+    .hero-buttons {
+        gap: 10px;
+    }
+    
+    #grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+        padding: 12px;
+    }
+    
+    .imgWrap {
+        height: 150px;
+    }
+    
+    .card h3 {
+        font-size: 16px;
+    }
+    
+    .card p {
+        font-size: 13px;
+    }
+    
+    .filter-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    #tagFilter {
+        min-width: 100%;
+    }
+    
+    .cat-form-box {
+        padding: 20px;
+        margin: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-section {
+        padding: 30px 12px;
+    }
+    
+    .hero-content h1 {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+    
+    .hero-content p {
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+    
+    .hero-button {
+        padding: 8px 15px;
+        font-size: 14px;
+        min-width: 130px;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    #grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .imgWrap {
+        height: 200px;
+    }
+    
+    .pagination-buttons {
+        gap: 4px;
+    }
+    
+    .page-btn {
+        padding: 6px 8px;
+        min-width: 32px;
+        font-size: 13px;
+    }
+    
+    .pagination-info {
+        font-size: 13px;
+    }
+    
+    .filter-section {
+        padding: 12px;
+    }
+}

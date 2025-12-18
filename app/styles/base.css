@@ -1,4 +1,4 @@
-/* Reset and base styles */
+
 * {
     margin: 0;
     padding: 0;
@@ -10,12 +10,11 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f5f5f5;
-    
 }
 
-/* Main Container */
 .main-container {
-    width: 75%;
+    width: 95%;
+    max-width: 1200px;
     margin: 25px auto 0;
     padding: 0 16px;
 }
@@ -24,6 +23,7 @@ h1 {
     margin: 0 0 20px 0;
     text-align: center;
     color: #333;
+    font-size: 28px;
 }
 
 /* Form Styles */
@@ -52,10 +52,12 @@ h1 {
     display: flex;
     gap: 8px;
     margin-top: 16px;
+    flex-wrap: wrap;
 }
 
 .form-actions button {
     flex: 1;
+    min-width: 120px;
     padding: 8px 10px;
     cursor: pointer;
     border: 1px solid #ddd;
@@ -90,6 +92,7 @@ button:hover {
 .admin-only.visible {
     display: block;
 }
+
 /* Footer Styles */
 .site-footer {
     background: #333;
@@ -99,7 +102,8 @@ button:hover {
 }
 
 .footer-container {
-    width: 75%;
+    width: 95%;
+    max-width: 1200px;
     margin: 0 auto;
     display: flex;
     flex-wrap: wrap;
@@ -109,7 +113,7 @@ button:hover {
 
 .footer-section {
     flex: 1;
-    min-width: 200px;
+    min-width: 250px;
 }
 
 .footer-section h3,
@@ -151,4 +155,38 @@ button:hover {
     border-top: 1px solid #444;
     color: #999;
     font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        width: 100%;
+        padding: 0 12px;
+    }
+    
+    h1 {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+    
+    .footer-section {
+        min-width: 100%;
+    }
+    
+    .footer-container {
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 22px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions button {
+        width: 100%;
+    }
 }
