@@ -1,6 +1,7 @@
 // Initialize about page
 document.addEventListener("DOMContentLoaded", () => {
     initAuth();
+    initPopups(); 
     
     // Highlight current page in navbar
     highlightCurrentPage();

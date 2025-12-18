@@ -1,7 +1,7 @@
 // Initialize contact page
 document.addEventListener("DOMContentLoaded", () => {
     initAuth();
-    initPopups(); // Initialize popups
+    initPopups(); 
     initContactForm();
     highlightCurrentPage();
     initEmergencyNotice();
