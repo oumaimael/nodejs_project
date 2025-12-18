@@ -10,6 +10,25 @@
     <link rel="stylesheet" href="styles/about.css">
 </head>
 <body>
+    <!-- Popups -->
+    <div id="popupContainer" class="popup-overlay">
+        <div id="popup" class="popup-box">
+            <div id="popupMessage" class="popup-message"></div>
+            <div class="popup-actions">
+                <button id="popupOk">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmPopup" class="popup-overlay">
+        <div id="confirmBox" class="popup-box">
+            <div id="confirmMessage" class="popup-message"></div>
+            <div class="confirm-actions">
+                <button id="confirmYes">Yes</button>
+                <button id="confirmNo">No</button>
+            </div>
+        </div>
+    </div>
     <div id="loginModal" class="popup-overlay">
         <div id="loginBox" class="popup-box">
             <h3>Admin Login</h3>
