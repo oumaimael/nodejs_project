@@ -246,9 +246,3 @@ app.put("/users/:id", (req, res) => {
         })
     })
 });
-
-
-//listen to port
-app.listen(port, () => {
-    console.log(`server is running on port ${port}`);
-});
