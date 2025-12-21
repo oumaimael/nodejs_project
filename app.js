@@ -20,17 +20,6 @@ app.use(express.static("app"));
 // Export for Cloudflare Workers
 module.exports = {
     async fetch(request, env, ctx) {
-        // Basic adapter for Express on Workers (requires nodejs_compat)
-        // Note: This is a simplified adapter. For full support, consider using a library.
-        // However, since we are using nodejs_compat, we might be able to use a lighter wrapper.
-        // But standard Express relies on Node.js http.IncomingMessage and http.ServerResponse.
-        // We will try to use a basic response for now to verify deployment, 
-        // as full Express support on Workers often requires 'hono' or specific adapters.
-
-        // For now, let's try to return a simple response if the DB fails, 
-        // or try to run the app if possible. 
-        // Given the complexity of wrapping Express manually, and the user's "mysql" dependency 
-        // which will definitely fail, the primary goal is to fix the "Missing entry-point" error.
 
         return new Response("Hello from Cloudflare Workers! Note: The MySQL connection will likely fail as Workers cannot connect to localhost.", {
             headers: { "content-type": "text/plain" }
