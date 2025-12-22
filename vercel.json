@@ -27,5 +27,11 @@
             "src": "/(.*)",
             "dest": "/app/$1"
         }
-    ]
+    ],
+    "env": [
+        {
+        "SUPABASE_URL": "https://ttgckwhdstvapizfcerx.supabase.co",
+        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0Z2Nrd2hkc3R2YXBpemZjZXJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNTAyOTgsImV4cCI6MjA4MTkyNjI5OH0.PFiFKRqpPsL_-83Ek_cQtO3hoXe0pGDU-Yox9IdvIr4"
+    }
+]
 }

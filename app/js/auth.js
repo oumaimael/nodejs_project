@@ -118,6 +118,8 @@ async function initAuth() {
                     document.getElementById("loginModal").style.display = "none";
                     newLoginForm.reset();
                 } else {
+                    const text = await response.text();
+                    console.error(`Login API Error (${response.status}):`, text);
                     showPopup("Invalid username or password");
                 }
             } catch (error) {
@@ -178,8 +180,14 @@ async function initAuth() {
                     // Refresh admin users list to include the new user
                     // await fetchAdminUsers();
                 } else {
-                    const data = await response.json();
-                    showPopup("Sign up failed: " + (data.error || "Unknown error"));
+                    const text = await response.text();
+                    console.error(`Signup API Error (${response.status}):`, text);
+                    try {
+                        const data = JSON.parse(text);
+                        showPopup("Sign up failed: " + (data.error || "Unknown error"));
+                    } catch (e) {
+                        showPopup("Sign up failed: Server error");
+                    }
                 }
             } catch (error) {
                 console.error('Error signing up:', error);

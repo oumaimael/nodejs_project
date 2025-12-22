@@ -422,6 +422,13 @@ async function loadCats() {
 
     try {
         const res = await fetch(`${API_BASE_URL}/api/cats`);
+
+        if (!res.ok) {
+            const text = await res.text();
+            console.error(`API Error (${res.status}):`, text);
+            throw new Error(`API returned ${res.status}`);
+        }
+
         allCats = await res.json();
 
         if (!Array.isArray(allCats) || allCats.length == 0) {
@@ -440,8 +447,8 @@ async function loadCats() {
         displayCurrentPage();
 
     } catch (err) {
-        grid.textContent = "Failed to load cats.";
+        grid.textContent = "Failed to load cats. Check console for details.";
         document.getElementById("pagination").innerHTML = "";
-        console.error(err);
+        console.error("loadCats error:", err);
     }
 }
