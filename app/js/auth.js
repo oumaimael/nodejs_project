@@ -1,25 +1,8 @@
 // Global authentication state
 let isAdmin = false;
 
-let ADMIN_CREDENTIALS = [];
-
 // Track if auth is initialized to prevent duplicate event listeners
 let authInitialized = false;
-
-// Fetch admin users from API - UPDATED to not log credentials
-async function fetchAdminUsers() {
-    try {
-        const response = await fetch('http://localhost:5000/users');
-        if (!response.ok) {
-            throw new Error('Failed to fetch users');
-        }
-        ADMIN_CREDENTIALS = await response.json();
-        // REMOVED console.log('Admin users loaded:', ADMIN_CREDENTIALS);
-    } catch (error) {
-        console.error('Error fetching admin users:', error);
-        ADMIN_CREDENTIALS = [];
-    }
-}
 
 // Check admin status from localStorage
 function checkAdminStatus() {
@@ -34,10 +17,10 @@ function checkAdminStatus() {
 function updateAdminUI() {
     const loginBtn = document.getElementById("loginBtn");
     const logoutBtn = document.getElementById("logoutBtn");
-    
+
     if (loginBtn) loginBtn.style.display = isAdmin ? "none" : "block";
     if (logoutBtn) logoutBtn.style.display = isAdmin ? "block" : "none";
-    
+
     // Update admin-only elements
     document.querySelectorAll(".admin-only").forEach(el => {
         if (isAdmin) {
@@ -46,7 +29,7 @@ function updateAdminUI() {
             el.classList.remove("visible");
         }
     });
-    
+
     // Update action buttons in cat cards
     updateActionButtons();
 }
@@ -68,7 +51,7 @@ function login() {
     isAdmin = true;
     localStorage.setItem('isAdmin', 'true');
     updateAdminUI();
-    showPopup("Admin login successful!");
+    showPopup("Login successful!");
 }
 
 // Logout function
@@ -79,94 +62,143 @@ function logout() {
     showPopup("Logged out successfully");
 }
 
-// Validate login credentials against fetched admin users
-function validateLogin(username, password) {
-    if (!Array.isArray(ADMIN_CREDENTIALS)) {
-        console.error('ADMIN_CREDENTIALS is not an array:', ADMIN_CREDENTIALS);
-        return false;
-    }
-    
-    const validUser = ADMIN_CREDENTIALS.find(user => 
-        user.userName === username && user.password === password
-    );
-    
-    return validUser !== undefined;
-}
-
-// Initialize authentication - UPDATED to prevent duplicate initialization and remove debug logs
+// Initialize authentication
 async function initAuth() {
     // Prevent multiple initializations
     if (authInitialized) {
-        // REMOVED console.log('Auth already initialized, skipping...');
         return;
     }
-    
+
     authInitialized = true;
-    
-    // First, fetch admin users from API (but don't log them)
-    await fetchAdminUsers();
-    
+
     const loginBtn = document.getElementById("loginBtn");
     const logoutBtn = document.getElementById("logoutBtn");
-    
+
     if (loginBtn) {
         // Remove any existing event listeners first
         loginBtn.replaceWith(loginBtn.cloneNode(true));
         const newLoginBtn = document.getElementById("loginBtn");
-        
+
         newLoginBtn.addEventListener("click", () => {
             document.getElementById("loginModal").style.display = "flex";
         });
     }
-    
+
     if (logoutBtn) {
         // Remove any existing event listeners first
         logoutBtn.replaceWith(logoutBtn.cloneNode(true));
         const newLogoutBtn = document.getElementById("logoutBtn");
-        
+
         newLogoutBtn.addEventListener("click", logout);
     }
-    
+
     // Initialize login form if it exists
     const loginForm = document.getElementById("loginForm");
     if (loginForm) {
         // Remove any existing event listeners first
         loginForm.replaceWith(loginForm.cloneNode(true));
         const newLoginForm = document.getElementById("loginForm");
-        
-        newLoginForm.addEventListener("submit", (e) => {
+
+        newLoginForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
-            
-            // REMOVED debug logs that expose credentials
-            // console.log('Login attempt:', { username, password });
-            // console.log('Available credentials:', ADMIN_CREDENTIALS);
-            
-            if (validateLogin(username, password)) {
-                // REMOVED console.log('Login successful!');
-                login();
-                document.getElementById("loginModal").style.display = "none";
-                newLoginForm.reset();
-            } else {
-                // REMOVED console.log('Login failed - invalid credentials');
-                showPopup("Invalid username or password");
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userName: username, password: password })
+                });
+
+                if (response.ok) {
+                    login();
+                    document.getElementById("loginModal").style.display = "none";
+                    newLoginForm.reset();
+                } else {
+                    showPopup("Invalid username or password");
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showPopup("An error occurred during login.");
             }
         });
     }
-    
+
     // Initialize login cancel button
     const cancelLogin = document.getElementById("cancelLogin");
     if (cancelLogin) {
         // Remove any existing event listeners first
         cancelLogin.replaceWith(cancelLogin.cloneNode(true));
         const newCancelLogin = document.getElementById("cancelLogin");
-        
+
         newCancelLogin.addEventListener("click", () => {
             document.getElementById("loginModal").style.display = "none";
         });
     }
-    
+
+    // Initialize Sign Up Button
+    const signupBtn = document.getElementById("signupBtn");
+    if (signupBtn) {
+        signupBtn.replaceWith(signupBtn.cloneNode(true));
+        const newSignupBtn = document.getElementById("signupBtn");
+
+        newSignupBtn.addEventListener("click", () => {
+            document.getElementById("signupModal").style.display = "flex";
+        });
+    }
+
+    // Initialize Sign Up Form
+    const signupForm = document.getElementById("signupForm");
+    if (signupForm) {
+        signupForm.replaceWith(signupForm.cloneNode(true));
+        const newSignupForm = document.getElementById("signupForm");
+
+        newSignupForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const userName = document.getElementById("signupUsername").value;
+            const email = document.getElementById("signupEmail").value;
+            const password = document.getElementById("signupPassword").value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userName, email, password })
+                });
+
+                if (response.ok) {
+                    showPopup("Sign up successful! You can now login.");
+                    document.getElementById("signupModal").style.display = "none";
+                    newSignupForm.reset();
+                    // Refresh admin users list to include the new user
+                    // await fetchAdminUsers();
+                } else {
+                    const data = await response.json();
+                    showPopup("Sign up failed: " + (data.error || "Unknown error"));
+                }
+            } catch (error) {
+                console.error('Error signing up:', error);
+                showPopup("An error occurred during sign up.");
+            }
+        });
+    }
+
+    // Initialize Sign Up Cancel Button
+    const cancelSignup = document.getElementById("cancelSignup");
+    if (cancelSignup) {
+        cancelSignup.replaceWith(cancelSignup.cloneNode(true));
+        const newCancelSignup = document.getElementById("cancelSignup");
+
+        newCancelSignup.addEventListener("click", () => {
+            document.getElementById("signupModal").style.display = "none";
+        });
+    }
+
     // Check initial admin status
     checkAdminStatus();
 }
@@ -175,20 +207,20 @@ async function initAuth() {
 document.addEventListener('DOMContentLoaded', initAuth);
 
 // Mobile menu functionality
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const menuToggle = document.getElementById('menuToggle');
     const navLinks = document.getElementById('navLinks');
-    
+
     if (menuToggle && navLinks) {
-        menuToggle.addEventListener('click', function() {
+        menuToggle.addEventListener('click', function () {
             navLinks.classList.toggle('active');
             menuToggle.classList.toggle('active');
         });
-        
+
         // Close menu when clicking on a link
         const navItems = navLinks.querySelectorAll('.nav-link, .nav-login, .nav-logout');
         navItems.forEach(item => {
-            item.addEventListener('click', function() {
+            item.addEventListener('click', function () {
                 navLinks.classList.remove('active');
                 menuToggle.classList.remove('active');
             });

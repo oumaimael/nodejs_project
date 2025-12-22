@@ -19,43 +19,43 @@ function initCatForm() {
     const form = document.getElementById("catForm");
     const formTitle = document.getElementById("catFormTitle");
     const submitBtn = document.getElementById("catFormSubmit");
-    
+
     // Show form button
     document.getElementById("showAddFormBtn").addEventListener("click", () => {
         setupAddMode();
         modal.style.display = "flex";
     });
-    
+
     // Cancel button
     document.getElementById("cancelCatForm").addEventListener("click", () => {
         modal.style.display = "none";
     });
-    
+
     // Form submit
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
-        
+
         const catData = {
             name: document.getElementById("catName").value.trim(),
             description: document.getElementById("catDescription").value.trim(),
             tag: document.getElementById("catTag").value.trim(),
             img: document.getElementById("catImage").value.trim()
         };
-        
+
         if (!catData.name) {
             showPopup("Cat name is required!");
             return;
         }
-        
+
         const mode = form.dataset.mode;
         const editId = form.dataset.editId;
-        
+
         if (mode === "edit" && editId) {
             await updateCat(editId, catData);
         } else {
             await addCat(catData);
         }
-        
+
         modal.style.display = "none";
     });
 }
@@ -65,13 +65,13 @@ function setupAddMode() {
     const form = document.getElementById("catForm");
     const formTitle = document.getElementById("catFormTitle");
     const submitBtn = document.getElementById("catFormSubmit");
-    
+
     // Set to add mode
     form.dataset.mode = "add";
     form.dataset.editId = "";
     formTitle.textContent = "Add New Cat";
     submitBtn.textContent = "Add Cat";
-    
+
     // Clear form fields
     document.getElementById("catName").value = "";
     document.getElementById("catDescription").value = "";
@@ -86,39 +86,39 @@ function setupEditMode(cat) {
     const form = document.getElementById("catForm");
     const formTitle = document.getElementById("catFormTitle");
     const submitBtn = document.getElementById("catFormSubmit");
-    
+
     // Debug: Log the cat object structure
     console.log("Full cat object:", cat);
     console.log("Available properties:", Object.keys(cat));
-    
+
     // Set to edit mode
     form.dataset.mode = "edit";
-    
+
     // Try different possible ID properties (common variations)
     const catId = cat.id || cat._id || cat.Id || cat.ID;
     form.dataset.editId = catId;
     console.log("Using cat ID:", catId);
-    
+
     formTitle.textContent = "Edit Cat";
     submitBtn.textContent = "Update Cat";
-    
+
     // Try different possible property names (case insensitive)
     const catName = cat.name || cat.Name || cat.NAME || "";
     const catDescription = cat.description || cat.Description || cat.DESCRIPTION || "";
     const catTag = cat.tag || cat.Tag || cat.TAG || "";
     const catImage = cat.img || cat.image || cat.Img || cat.Image || "";
-    
+
     console.log("Setting form values:", { catName, catDescription, catTag, catImage });
-    
+
     // Fill form with cat data
     document.getElementById("catName").value = catName;
     document.getElementById("catDescription").value = catDescription;
     document.getElementById("catTag").value = catTag;
     document.getElementById("catImage").value = catImage;
-    
+
     // Show modal
     modal.style.display = "flex";
-    
+
     // Verify values are set
     setTimeout(() => {
         console.log("Actual form values:");
@@ -135,12 +135,12 @@ function initFilters() {
         currentPage = 1;
         filterCats();
     });
-    
+
     document.getElementById("tagFilter").addEventListener("change", () => {
         currentPage = 1;
         filterCats();
     });
-    
+
     document.getElementById("clearFilters").addEventListener("click", () => {
         document.getElementById("searchInput").value = "";
         document.getElementById("tagFilter").value = "";
@@ -153,36 +153,36 @@ function initFilters() {
 function filterCats() {
     const searchTerm = document.getElementById("searchInput").value.toLowerCase();
     const selectedTag = document.getElementById("tagFilter").value;
-    
+
     filteredCats = allCats.filter(cat => {
-        const matchesSearch = searchTerm === "" || 
+        const matchesSearch = searchTerm === "" ||
             (cat.name && cat.name.toLowerCase().includes(searchTerm)) ||
             (cat.description && cat.description.toLowerCase().includes(searchTerm));
-        
+
         const matchesTag = selectedTag === "" || cat.tag === selectedTag;
-        
+
         return matchesSearch && matchesTag;
     });
-    
+
     displayCurrentPage();
 }
 
 // Display current page of cats
 function displayCurrentPage() {
     const grid = document.getElementById("grid");
-    
+
     if (!Array.isArray(filteredCats) || filteredCats.length == 0) {
         grid.textContent = "No cats found matching your search.";
         document.getElementById("pagination").innerHTML = "";
         return;
     }
-    
+
     // Calculate pagination
     const totalPages = Math.ceil(filteredCats.length / catsPerPage);
     const startIndex = (currentPage - 1) * catsPerPage;
     const endIndex = startIndex + catsPerPage;
     const pageCats = filteredCats.slice(startIndex, endIndex);
-    
+
     // Display cats for current page
     grid.innerHTML = pageCats
         .map((c) => {
@@ -193,11 +193,10 @@ function displayCurrentPage() {
             return `
                 <div class="card">
                     <div class="imgWrap">
-                        ${
-                            img
-                                ? `<img src="${img}" alt="${name}" />`
-                                : `<div class="imgFallback">No image</div>`
-                        }
+                        ${img
+                    ? `<img src="${img}" alt="${name}" />`
+                    : `<div class="imgFallback">No image</div>`
+                }
                     </div>
                     <h3>${name}</h3>
                     <p>${description}</p>
@@ -210,17 +209,17 @@ function displayCurrentPage() {
             `;
         })
         .join("");
-    
+
     addCardEventListeners();
     updateActionButtons();
-    
+
     updatePagination(totalPages);
 }
 
 // Add event listeners to cat cards
 function addCardEventListeners() {
     const grid = document.getElementById("grid");
-    
+
     // Add event listeners for delete buttons
     grid.querySelectorAll(".deleteBtn").forEach((btn) => {
         btn.addEventListener("click", (e) => {
@@ -235,89 +234,89 @@ function addCardEventListeners() {
 
     // Add event listeners for edit buttons
     grid.querySelectorAll(".editBtn").forEach((btn) => {
-    btn.addEventListener("click", async (e) => {
-        if (!isAdmin) {
-            showPopup("Admin privileges required");
-            return;
-        }
-        const catId = e.target.dataset.id;
-        
-        try {
-            const res = await fetch(`http://localhost:5000/cats/${catId}`);
-            
-            if (res.ok) {
-                const cat = await res.json();
-                
-                // Handle both array and object responses
-                let catData;
-                if (Array.isArray(cat) && cat.length > 0) {
-                    // If response is an array, take first element (like working app)
-                    catData = cat[0];
-                } else if (typeof cat === 'object' && cat !== null) {
-                    // If response is an object, use it directly
-                    catData = cat;
-                } else {
-                    showPopup("Invalid cat data received from server.");
-                    return;
-                }
-                
-                console.log("Cat data to edit:", catData);
-                setupEditMode(catData);
-            } else {
-                showPopup("Failed to load cat data for editing.");
+        btn.addEventListener("click", async (e) => {
+            if (!isAdmin) {
+                showPopup("Admin privileges required");
+                return;
             }
-        } catch (err) {
-            showPopup("Error loading cat data. Please check your connection.");
-            console.error(err);
-        }
+            const catId = e.target.dataset.id;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/cats?id=${catId}`);
+
+                if (res.ok) {
+                    const cat = await res.json();
+
+                    // Handle both array and object responses
+                    let catData;
+                    if (Array.isArray(cat) && cat.length > 0) {
+                        // If response is an array, take first element (like working app)
+                        catData = cat[0];
+                    } else if (typeof cat === 'object' && cat !== null) {
+                        // If response is an object, use it directly
+                        catData = cat;
+                    } else {
+                        showPopup("Invalid cat data received from server.");
+                        return;
+                    }
+
+                    console.log("Cat data to edit:", catData);
+                    setupEditMode(catData);
+                } else {
+                    showPopup("Failed to load cat data for editing.");
+                }
+            } catch (err) {
+                showPopup("Error loading cat data. Please check your connection.");
+                console.error(err);
+            }
+        });
     });
-});
 }
 
 // Update pagination controls
 function updatePagination(totalPages) {
     const pagination = document.getElementById("pagination");
-    
+
     if (totalPages <= 1) {
         pagination.innerHTML = "";
         return;
     }
-    
+
     let paginationHTML = '<div class="pagination-buttons">';
-    
+
     // Previous button
     if (currentPage > 1) {
         paginationHTML += `<button class="page-btn prev-btn" data-page="${currentPage - 1}">← Prev</button>`;
     }
-    
+
     // Page numbers
     const maxVisiblePages = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
+
     // Adjust if we're near the end
     if (endPage - startPage + 1 < maxVisiblePages) {
         startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
         paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
     }
-    
+
     // Next button
     if (currentPage < totalPages) {
         paginationHTML += `<button class="page-btn next-btn" data-page="${currentPage + 1}">Next →</button>`;
     }
-    
+
     paginationHTML += '</div>';
-    
+
     // Add page info
     const startCat = (currentPage - 1) * catsPerPage + 1;
     const endCat = Math.min(currentPage * catsPerPage, filteredCats.length);
     paginationHTML += `<div class="pagination-info">Showing ${startCat}-${endCat} of ${filteredCats.length} cats</div>`;
-    
+
     pagination.innerHTML = paginationHTML;
-    
+
     // Add event listeners to pagination buttons
     pagination.querySelectorAll(".page-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
@@ -331,7 +330,7 @@ function updatePagination(totalPages) {
 function updateTagFilter(tags) {
     const tagFilter = document.getElementById("tagFilter");
     const currentOptions = Array.from(tagFilter.options).map(opt => opt.value);
-    
+
     // Add new tags that aren't already in the filter
     tags.forEach(tag => {
         if (tag && !currentOptions.includes(tag)) {
@@ -346,7 +345,7 @@ function updateTagFilter(tags) {
 // Add cat function
 async function addCat(catData) {
     try {
-        const res = await fetch("http://localhost:5000/cats", {
+        const res = await fetch(`${API_BASE_URL}/api/cats`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -370,7 +369,7 @@ async function addCat(catData) {
 
 async function updateCat(catId, catData) {
     try {
-        const res = await fetch(`http://localhost:5000/cats/${catId}`, {
+        const res = await fetch(`${API_BASE_URL}/api/cats?id=${catId}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -400,7 +399,7 @@ async function deleteCat(catId) {
     if (!confirmed) return;
 
     try {
-        const res = await fetch(`http://localhost:5000/cats/${catId}`, {
+        const res = await fetch(`${API_BASE_URL}/api/cats?id=${catId}`, {
             method: "DELETE",
         });
 
@@ -422,7 +421,7 @@ async function loadCats() {
     grid.textContent = "Loading...";
 
     try {
-        const res = await fetch("http://localhost:5000/cats");
+        const res = await fetch(`${API_BASE_URL}/api/cats`);
         allCats = await res.json();
 
         if (!Array.isArray(allCats) || allCats.length == 0) {
@@ -434,7 +433,7 @@ async function loadCats() {
         // Extract unique tags from all cats
         const tags = [...new Set(allCats.map(cat => cat.tag).filter(tag => tag && tag.trim() !== ""))];
         updateTagFilter(tags);
-        
+
         // Reset to first page and display
         currentPage = 1;
         filteredCats = [...allCats];

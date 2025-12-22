@@ -2,6 +2,7 @@
 const express = require("express");
 const mysql = require("mysql");
 const bodyParser = require("body-parser");
+const dotenv = require('dotenv').config();
 
 //launching app
 const app = express();
@@ -14,25 +15,28 @@ app.use(bodyParser.json());
 const cors = require('cors');
 app.use(cors());
 
-// Serve static files from 'app' directory
+// Import API handlers
+const catsHandler = require('./api/cats');
+const usersHandler = require('./api/users');
+
+// API routes MUST come before static files
+app.all('/api/cats', async (req, res) => {
+    await catsHandler(req, res);
+});
+
+app.all('/api/users', async (req, res) => {
+    await usersHandler(req, res);
+});
+
+// Serve static files from 'app' directory (AFTER API routes)
 app.use(express.static("app"));
 
-// Export for Cloudflare Workers
-module.exports = {
-    async fetch(request, env, ctx) {
+// Start server
+app.listen(port, () => {
+    console.log(`🚀 Local dev server running on http://localhost:${port}`);
+    console.log(`📊 Using Supabase: ${process.env.SUPABASE_URL ? '✅' : '❌'}`);
+});
 
-        return new Response("Hello from Cloudflare Workers! Note: The MySQL connection will likely fail as Workers cannot connect to localhost.", {
-            headers: { "content-type": "text/plain" }
-        });
-    }
-};
-
-// Only listen if not in a Worker environment (simple check)
-if (typeof addEventListener === 'undefined') {
-    app.listen(port, () => {
-        console.log(`server is running on port ${port}`);
-    });
-}
 
 
 const pool = mysql.createPool({
