@@ -12,6 +12,26 @@ module.exports = async (req, res) => {
     }
 
     try {
+        // GET /api/users/me - Check session
+        if (req.method === 'GET' && req.path.endsWith('/me')) {
+            if (req.session && req.session.user) {
+                return res.status(200).json({ user: req.session.user });
+            }
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
+        // POST /api/users/logout - Logout
+        if (req.method === 'POST' && req.path.endsWith('/logout')) {
+            req.session.destroy((err) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Could not log out' });
+                }
+                res.clearCookie('connect.sid');
+                return res.status(200).json({ message: 'Logged out successfully' });
+            });
+            return;
+        }
+
         // GET /api/users - Get all users
         if (req.method === 'GET' && !req.query.id) {
             console.log('Fetching all users from Supabase...');
@@ -59,6 +79,10 @@ module.exports = async (req, res) => {
 
                 // Don't send password back
                 const { password: _, ...userWithoutPassword } = data;
+
+                // Set session
+                req.session.user = userWithoutPassword;
+
                 return res.status(200).json(userWithoutPassword);
             }
 

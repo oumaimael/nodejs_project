@@ -4,13 +4,31 @@ let isAdmin = false;
 // Track if auth is initialized to prevent duplicate event listeners
 let authInitialized = false;
 
-// Check admin status from localStorage
-function checkAdminStatus() {
-    const savedAdmin = localStorage.getItem('isAdmin');
-    if (savedAdmin === 'true') {
-        isAdmin = true;
+// Check session status from server
+async function checkSession() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/users/me`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.user) {
+                isAdmin = true;
+                updateAdminUI();
+            }
+        } else {
+            isAdmin = false;
+            updateAdminUI();
+        }
+    } catch (error) {
+        console.error('Session check failed:', error);
+        isAdmin = false;
+        updateAdminUI();
     }
-    updateAdminUI();
+}
+
+// Check admin status from localStorage (Legacy - removed)
+function checkAdminStatus() {
+    // Legacy function kept for structure but now delegates to checkSession or does nothing
+    // checkSession is called in initAuth
 }
 
 // Update UI based on admin status
@@ -46,20 +64,31 @@ function updateActionButtons() {
     });
 }
 
-// Login function
-function login() {
+// Login success handler
+function onLoginSuccess() {
     isAdmin = true;
-    localStorage.setItem('isAdmin', 'true');
     updateAdminUI();
     showPopup("Login successful!");
 }
 
 // Logout function
-function logout() {
-    isAdmin = false;
-    localStorage.removeItem('isAdmin');
-    updateAdminUI();
-    showPopup("Logged out successfully");
+async function logout() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/users/logout`, {
+            method: 'POST'
+        });
+
+        if (response.ok) {
+            isAdmin = false;
+            updateAdminUI();
+            showPopup("Logged out successfully");
+        } else {
+            showPopup("Logout failed");
+        }
+    } catch (error) {
+        console.error('Logout error:', error);
+        showPopup("Error logging out");
+    }
 }
 
 // Initialize authentication
@@ -114,12 +143,10 @@ async function initAuth() {
                 });
 
                 if (response.ok) {
-                    login();
+                    onLoginSuccess();
                     document.getElementById("loginModal").style.display = "none";
                     newLoginForm.reset();
                 } else {
-                    const text = await response.text();
-                    console.error(`Login API Error (${response.status}):`, text);
                     showPopup("Invalid username or password");
                 }
             } catch (error) {
@@ -180,14 +207,8 @@ async function initAuth() {
                     // Refresh admin users list to include the new user
                     // await fetchAdminUsers();
                 } else {
-                    const text = await response.text();
-                    console.error(`Signup API Error (${response.status}):`, text);
-                    try {
-                        const data = JSON.parse(text);
-                        showPopup("Sign up failed: " + (data.error || "Unknown error"));
-                    } catch (e) {
-                        showPopup("Sign up failed: Server error");
-                    }
+                    const data = await response.json();
+                    showPopup("Sign up failed: " + (data.error || "Unknown error"));
                 }
             } catch (error) {
                 console.error('Error signing up:', error);
@@ -207,8 +228,8 @@ async function initAuth() {
         });
     }
 
-    // Check initial admin status
-    checkAdminStatus();
+    // Check session on load
+    await checkSession();
 }
 
 // Make sure to call initAuth() when your page loads

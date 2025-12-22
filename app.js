@@ -12,8 +12,26 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+
+app.use(cookieParser());
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // true in production
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+
 const cors = require('cors');
-app.use(cors());
+app.use(cors({
+    origin: true, // Allow all origins (or specify your frontend URL)
+    credentials: true // Allow cookies
+}));
 
 // Import API handlers
 const catsHandler = require('./api/cats');
@@ -24,7 +42,7 @@ app.all('/api/cats', async (req, res) => {
     await catsHandler(req, res);
 });
 
-app.all('/api/users', async (req, res) => {
+app.use('/api/users', async (req, res) => {
     await usersHandler(req, res);
 });
 
@@ -33,8 +51,8 @@ app.use(express.static("app"));
 
 // Start server
 app.listen(port, () => {
-    console.log(`🚀 Local dev server running on http://localhost:${port}`);
-    console.log(`📊 Using Supabase: ${process.env.SUPABASE_URL ? '✅' : '❌'}`);
+    console.log(`Local dev server running on http://localhost:${port}`);
+    console.log(`Using Supabase: ${process.env.SUPABASE_URL ? '✅' : '❌'}`);
 });
 
 
