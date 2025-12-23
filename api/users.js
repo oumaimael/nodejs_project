@@ -5,35 +5,41 @@ module.exports = async (req, res) => {
     // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
     try {
-        // GET /api/users/me - Check session
-        if (req.method === 'GET' && req.path.endsWith('/me')) {
-            if (req.session && req.session.user) {
-                return res.status(200).json({ user: req.session.user });
+        // Parse body if needed
+        let body = {};
+        if (req.body) {
+            if (typeof req.body === 'string') {
+                body = JSON.parse(req.body);
+            } else {
+                body = req.body;
             }
-            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
+        // GET /api/users/me - Check session (via Authorization header)
+        if (req.method === 'GET' && req.url && req.url.includes('/me')) {
+            const authHeader = req.headers.authorization;
+            if (!authHeader) {
+                return res.status(401).json({ error: 'Not authenticated' });
+            }
+            // For now, just return authenticated status
+            return res.status(200).json({ authenticated: true });
         }
 
         // POST /api/users/logout - Logout
-        if (req.method === 'POST' && req.path.endsWith('/logout')) {
-            req.session.destroy((err) => {
-                if (err) {
-                    return res.status(500).json({ error: 'Could not log out' });
-                }
-                res.clearCookie('connect.sid');
-                return res.status(200).json({ message: 'Logged out successfully' });
-            });
-            return;
+        if (req.method === 'POST' && req.url && req.url.includes('/logout')) {
+            // Logout is client-side in serverless - just return success
+            return res.status(200).json({ message: 'Logged out successfully' });
         }
 
         // GET /api/users - Get all users
-        if (req.method === 'GET' && !req.query.id) {
+        if (req.method === 'GET' && (!req.url || req.url === '/api/users' || req.url === '')) {
             console.log('Fetching all users from Supabase...');
             const { data, error } = await supabase
                 .from('users')
@@ -49,7 +55,7 @@ module.exports = async (req, res) => {
         }
 
         // GET /api/users?id=1 - Get user by ID
-        if (req.method === 'GET' && req.query.id) {
+        if (req.method === 'GET' && req.query && req.query.id) {
             const { data, error } = await supabase
                 .from('users')
                 .select('id, "userName", email, created_at')
@@ -61,11 +67,12 @@ module.exports = async (req, res) => {
         }
 
         // POST /api/users - Create new user OR Login
-        if (req.method === 'POST') {
-            const { userName, email, password } = req.body;
+        if (req.method === 'POST' && (!req.url || req.url === '/api/users' || req.url === '')) {
+            const { userName, email, password } = body;
 
             // If only userName and password provided, it's a login attempt
             if (userName && password && !email) {
+                console.log('Login attempt for user:', userName);
                 const { data, error } = await supabase
                     .from('users')
                     .select('*')
@@ -74,19 +81,22 @@ module.exports = async (req, res) => {
                     .single();
 
                 if (error || !data) {
+                    console.log('Login failed - invalid credentials');
                     return res.status(401).json({ error: 'Invalid credentials' });
                 }
 
                 // Don't send password back
                 const { password: _, ...userWithoutPassword } = data;
 
-                // Set session
-                req.session.user = userWithoutPassword;
-
                 return res.status(200).json(userWithoutPassword);
             }
 
             // Otherwise, create new user
+            if (!userName || !email || !password) {
+                return res.status(400).json({ error: 'Missing required fields' });
+            }
+
+            console.log('Creating new user:', userName);
             const { data, error } = await supabase
                 .from('users')
                 .insert([{ "userName": userName, email, password }])
@@ -94,6 +104,7 @@ module.exports = async (req, res) => {
                 .single();
 
             if (error) {
+                console.error('Supabase error:', error);
                 if (error.code === '23505') { // Unique violation
                     return res.status(409).json({ error: 'Username or email already exists' });
                 }
@@ -103,8 +114,8 @@ module.exports = async (req, res) => {
         }
 
         // PUT /api/users?id=1 - Update user
-        if (req.method === 'PUT' && req.query.id) {
-            const { userName, email, password } = req.body;
+        if (req.method === 'PUT' && req.query && req.query.id) {
+            const { userName, email, password } = body;
 
             const { data, error } = await supabase
                 .from('users')
@@ -118,7 +129,7 @@ module.exports = async (req, res) => {
         }
 
         // DELETE /api/users?id=1 - Delete user
-        if (req.method === 'DELETE' && req.query.id) {
+        if (req.method === 'DELETE' && req.query && req.query.id) {
             const { error } = await supabase
                 .from('users')
                 .delete()

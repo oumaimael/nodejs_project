@@ -7,17 +7,24 @@ let authInitialized = false;
 // Check session status from server
 async function checkSession() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/users/me`);
-        if (response.ok) {
-            const data = await response.json();
-            if (data.user) {
-                isAdmin = true;
-                updateAdminUI();
+        // Check if user is stored in localStorage
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                if (user && user.id) {
+                    isAdmin = true;
+                    updateAdminUI();
+                    return;
+                }
+            } catch (e) {
+                console.error('Invalid user data in localStorage:', e);
+                localStorage.removeItem('user');
             }
-        } else {
-            isAdmin = false;
-            updateAdminUI();
         }
+        
+        isAdmin = false;
+        updateAdminUI();
     } catch (error) {
         console.error('Session check failed:', error);
         isAdmin = false;
@@ -74,17 +81,13 @@ function onLoginSuccess() {
 // Logout function
 async function logout() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/users/logout`, {
-            method: 'POST'
-        });
-
-        if (response.ok) {
-            isAdmin = false;
-            updateAdminUI();
-            showPopup("Logged out successfully");
-        } else {
-            showPopup("Logout failed");
-        }
+        // Remove user from localStorage
+        localStorage.removeItem('user');
+        
+        // Update UI
+        isAdmin = false;
+        updateAdminUI();
+        showPopup("Logged out successfully");
     } catch (error) {
         console.error('Logout error:', error);
         showPopup("Error logging out");
@@ -142,12 +145,17 @@ async function initAuth() {
                     body: JSON.stringify({ userName: username, password: password })
                 });
 
+                const data = await response.json();
+
                 if (response.ok) {
+                    // Store user info in localStorage
+                    localStorage.setItem('user', JSON.stringify(data));
                     onLoginSuccess();
                     document.getElementById("loginModal").style.display = "none";
                     newLoginForm.reset();
                 } else {
-                    showPopup("Invalid username or password");
+                    console.error('Login failed:', data);
+                    showPopup(data.error || "Invalid username or password");
                 }
             } catch (error) {
                 console.error('Login error:', error);
