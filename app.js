@@ -69,10 +69,15 @@ app.use('/api/users', async (req, res) => {
 app.use(express.static("app"));
 
 // Start server
-app.listen(port, () => {
-    console.log(`Local dev server running on http://localhost:${port}`);
-    console.log(`Using Supabase: ${process.env.SUPABASE_URL ? '✅' : '❌'}`);
-});
+// Start server only if not running in Vercel (Vercel exports the app)
+if (require.main === module) {
+    app.listen(port, () => {
+        console.log(`Local dev server running on http://localhost:${port}`);
+        console.log(`Using Supabase: ${process.env.SUPABASE_URL ? 'true' : 'false'}`);
+    });
+}
+
+module.exports = app;
 
 //get all cats from db
 app.get("/cats", async (req, res) => {

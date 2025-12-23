@@ -422,6 +422,17 @@ async function loadCats() {
 
     try {
         const res = await fetch(`${API_BASE_URL}/api/cats`);
+        
+        // Check if response is ok before parsing JSON
+        if (!res.ok) {
+            throw new Error(`API Error: ${res.status} ${res.statusText}`);
+        }
+        
+        const contentType = res.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('API did not return JSON. Response type: ' + contentType);
+        }
+        
         allCats = await res.json();
 
         if (!Array.isArray(allCats) || allCats.length == 0) {
