@@ -17,25 +17,19 @@ const supabase = createClient(
     process.env.SUPABASE_ANON_KEY
 );
 
-// Note: Session store remains MySQL-based for now
-// You may want to migrate to Supabase Auth or another session solution later
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const MySQLStore = require('express-mysql-session')(session);
+const pgSession = require('connect-pg-simple')(session);
+const { Pool } = require('pg');
 
-const sessionStore = new MySQLStore({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "nodejs",
-    schema: {
-        tableName: 'session',
-        columnNames: {
-            session_id: 'sid',
-            data: 'sess',
-            expires: 'expire'
-        }
-    }
+const pgPool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+});
+
+const sessionStore = new pgSession({
+    pool: pgPool,
+    tableName: 'session',
+    createTableIfMissing: false // User said table exists
 });
 
 app.use(cookieParser());
