@@ -2,30 +2,14 @@
     "version": 2,
     "builds": [
         {
-            "src": "api/**/*.js",
+            "src": "app.js",
             "use": "@vercel/node"
-        },
-        {
-            "src": "app/**",
-            "use": "@vercel/static"
         }
     ],
     "routes": [
         {
-            "src": "/api/(.*)",
-            "dest": "/api/$1"
-        },
-        {
-            "src": "/(.*\\.(css|js|html|png|jpg|jpeg|gif|svg|ico|webp))",
-            "dest": "/app/$1"
-        },
-        {
-            "src": "/",
-            "dest": "/app/index.html"
-        },
-        {
             "src": "/(.*)",
-            "dest": "/app/$1"
+            "dest": "/app.js"
         }
     ]
 }
