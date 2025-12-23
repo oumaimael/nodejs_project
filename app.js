@@ -61,7 +61,7 @@ app.all('/api/cats', async (req, res) => {
     await catsHandler(req, res);
 });
 
-app.use('/api/users', async (req, res) => {
+app.all('/api/users', async (req, res) => {
     await usersHandler(req, res);
 });
 
