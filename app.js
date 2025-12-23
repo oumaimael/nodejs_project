@@ -1,6 +1,6 @@
 //importing modules
 const express = require("express");
-const mysql = require("mysql");
+const { createClient } = require('@supabase/supabase-js'); // Added Supabase
 const bodyParser = require("body-parser");
 const dotenv = require('dotenv').config();
 
@@ -11,13 +11,38 @@ const port = process.env.PORT || 5000;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// Initialize Supabase client
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY
+);
 
+// Note: Session store remains MySQL-based for now
+// You may want to migrate to Supabase Auth or another session solution later
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
+
+const sessionStore = new MySQLStore({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "nodejs",
+    schema: {
+        tableName: 'session',
+        columnNames: {
+            session_id: 'sid',
+            data: 'sess',
+            expires: 'expire'
+        }
+    }
+});
 
 app.use(cookieParser());
 app.use(session({
+    key: 'session_cookie_name',
     secret: process.env.SESSION_SECRET || 'your-secret-key',
+    store: sessionStore,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -55,205 +80,222 @@ app.listen(port, () => {
     console.log(`Using Supabase: ${process.env.SUPABASE_URL ? '✅' : '❌'}`);
 });
 
+//get all cats from db
+app.get("/cats", async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('cats')
+            .select('*');
 
-
-const pool = mysql.createPool({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "nodejs",
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-});
-
-//get cat from db
-
-app.get("/cats", (req, res) => {
-    pool.getConnection((err, connection) => {
-        if (err) {
-            console.error("DB connection error:", err);
-            return res.status(500).json({ error: "DB connection error" });
+        if (error) {
+            console.error("Supabase error:", error);
+            return res.status(500).json({ error: error.message });
         }
-        connection.query("SELECT * From cats", (qErr, rows) => {
-            connection.release();
-            if (qErr) {
-                console.error("Query error:", qErr);
-                return res.status(500).json({ error: "Query error" });
-            }
-            res.json(rows);
-        });
-    });
+        res.json(data);
+    } catch (err) {
+        console.error("Server error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
 //get cat by id
-app.get("/cats/:id", (req, res) => {
-    pool.getConnection((err, connection) => {
-        if (err) {
-            console.error("DB connection error:", err);
-            return res.status(500).json({ error: "DB connection error" });
+app.get("/cats/:id", async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('cats')
+            .select('*')
+            .eq('id', req.params.id)
+            .single(); // Use single() to get one record
+
+        if (error) {
+            console.error("Supabase error:", error);
+            return res.status(500).json({ error: error.message });
         }
-        connection.query("SELECT * FROM cats where id = ?", [req.params.id], (qErr, rows) => {
-            const sql = "SELECT * FROM cats WHERE id =" + req.query.id;
-            //SELECT * FROM cat WHERE id = '5; DROP TABLE cat'
-            connection.release();
-            if (qErr) {
-                console.error("Query error:", qErr);
-                return res.status(500).json({ error: "Query error" });
-            }
-            res.json(rows);
-        });
-    });
+
+        if (!data) {
+            return res.status(404).json({ error: "Cat not found" });
+        }
+
+        res.json(data);
+    } catch (err) {
+        console.error("Server error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
 //add a cat
-app.post("/cats", (req, res) => {
+app.post("/cats", async (req, res) => {
     const { name, tag, description, img } = req.body;
-    pool.getConnection((err, connection) => {
-        if (err) {
-            console.error("DB connection error:", err);
-            return res.status(500).json({ error: "DB connection error" });
+
+    try {
+        const { data, error } = await supabase
+            .from('cats')
+            .insert([{ name, tag, description, img }])
+            .select(); // Returns the inserted row
+
+        if (error) {
+            console.error("Supabase error:", error);
+            return res.status(500).json({ error: error.message });
         }
-        connection.query("INSERT INTO cats (name, tag, description, img) VALUES (?, ?, ?, ?)", [name, tag, description, img], (qErr, rows) => {
-            connection.release();
-            if (qErr) {
-                console.error("Query error:", qErr);
-                return res.status(500).json({ error: "Query error" });
-            }
-            res.json(rows);
-        })
-    })
-});
-//delete record
-app.delete("/cats/:id", (req, res) => {
-    pool.getConnection((err, connection) => {
-        if (err) {
-            console.error("DB connection error:", err);
-            return res.status(500).json({ error: "DB connection error" });
-        }
-        connection.query("DELETE FROM cats where id = ?", [req.params.id], (qErr, rows) => {
-            connection.release();
-            if (qErr) {
-                console.error("Query error", qErr);
-                return res.status(500).json({ error: "Query error" });
-            }
-            res.json({ message: `record Num : ${req.params.id} deleted successfully` });
-        });
-    });
+        res.json(data[0]); // Return the inserted cat
+    } catch (err) {
+        console.error("Server error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
+//delete cat record
+app.delete("/cats/:id", async (req, res) => {
+    try {
+        const { error } = await supabase
+            .from('cats')
+            .delete()
+            .eq('id', req.params.id);
+
+        if (error) {
+            console.error("Supabase error:", error);
+            return res.status(500).json({ error: error.message });
+        }
+
+        res.json({ message: `Record Num: ${req.params.id} deleted successfully` });
+    } catch (err) {
+        console.error("Server error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
 
 // Update cat
-app.put("/cats/:id", (req, res) => {
+app.put("/cats/:id", async (req, res) => {
     const { name, tag, description, img } = req.body;
-    pool.getConnection((err, connection) => {
-        if (err) {
-            console.error("DB connection error:", err);
-            return res.status(500).json({ error: "DB connection error" })
+
+    try {
+        const { data, error } = await supabase
+            .from('cats')
+            .update({ name, tag, description, img })
+            .eq('id', req.params.id)
+            .select(); // Optional: returns updated row
+
+        if (error) {
+            console.error("Supabase error:", error);
+            return res.status(500).json({ error: error.message });
         }
-        connection.query("UPDATE cats SET name = ?, tag = ?, description = ?, img = ? WHERE id = ?", [name, tag, description, img, req.params.id], (qErr, rows) => {
-            connection.release();
-            if (qErr) {
-                console.error("Query error:", qErr);
-                return res.status(500).json({ error: "Query error" });
-            }
-            res.json(`Message: Record Num : ${req.params.id} updated successfully`);
-        })
-    })
+
+        res.json({
+            message: `Record Num: ${req.params.id} updated successfully`,
+            data: data[0] // Return updated data
+        });
+    } catch (err) {
+        console.error("Server error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
+//get all users from db
+app.get("/users", async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*');
 
-
-//get user from db
-
-app.get("/users", (req, res) => {
-    pool.getConnection((err, connection) => {
-        if (err) {
-            console.error("DB connection error:", err);
-            return res.status(500).json({ error: "DB connection error" });
+        if (error) {
+            console.error("Supabase error:", error);
+            return res.status(500).json({ error: error.message });
         }
-        connection.query("SELECT * From users", (qErr, rows) => {
-            connection.release();
-            if (qErr) {
-                console.error("Query error:", qErr);
-                return res.status(500).json({ error: "Query error" });
-            }
-            res.json(rows);
-        });
-    });
+        res.json(data);
+    } catch (err) {
+        console.error("Server error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
 //get user by id
-app.get("/users/:id", (req, res) => {
-    pool.getConnection((err, connection) => {
-        if (err) {
-            console.error("DB connection error:", err);
-            return res.status(500).json({ error: "DB connection error" });
+app.get("/users/:id", async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', req.params.id)
+            .single(); // Use single() to get one record
+
+        if (error) {
+            console.error("Supabase error:", error);
+            return res.status(500).json({ error: error.message });
         }
-        connection.query("SELECT * FROM users where id = ?", [req.params.id], (qErr, rows) => {
-            const sql = "SELECT * FROM users WHERE id =" + req.query.id;
-            connection.release();
-            if (qErr) {
-                console.error("Query error:", qErr);
-                return res.status(500).json({ error: "Query error" });
-            }
-            res.json(rows);
-        });
-    });
+
+        if (!data) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.json(data);
+    } catch (err) {
+        console.error("Server error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
 //add a user
-app.post("/users", (req, res) => {
+app.post("/users", async (req, res) => {
     const { userName, email, password } = req.body;
-    pool.getConnection((err, connection) => {
-        if (err) {
-            console.error("DB connection error:", err);
-            return res.status(500).json({ error: "DB connection error" });
+
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .insert([{ userName, email, password }])
+            .select(); // Returns the inserted row
+
+        if (error) {
+            console.error("Supabase error:", error);
+            return res.status(500).json({ error: error.message });
         }
-        connection.query("INSERT INTO users (userName, email, password) VALUES (?, ?, ?)", [userName, email, password], (qErr, rows) => {
-            connection.release();
-            if (qErr) {
-                console.error("Query error:", qErr);
-                return res.status(500).json({ error: "Query error" });
-            }
-            res.json(rows);
-        })
-    })
-});
-//delete user
-app.delete("/users/:id", (req, res) => {
-    pool.getConnection((err, connection) => {
-        if (err) {
-            console.error("DB connection error:", err);
-            return res.status(500).json({ error: "DB connection error" });
-        }
-        connection.query("DELETE FROM users where id = ?", [req.params.id], (qErr, rows) => {
-            connection.release();
-            if (qErr) {
-                console.error("Query error", qErr);
-                return res.status(500).json({ error: "Query error" });
-            }
-            res.json({ message: `record Num : ${req.params.id} deleted successfully` });
-        });
-    });
+        res.json(data[0]); // Return the inserted user
+    } catch (err) {
+        console.error("Server error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
+//delete user
+app.delete("/users/:id", async (req, res) => {
+    try {
+        const { error } = await supabase
+            .from('users')
+            .delete()
+            .eq('id', req.params.id);
+
+        if (error) {
+            console.error("Supabase error:", error);
+            return res.status(500).json({ error: error.message });
+        }
+
+        res.json({ message: `Record Num: ${req.params.id} deleted successfully` });
+    } catch (err) {
+        console.error("Server error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
 
 // Update user
-app.put("/users/:id", (req, res) => {
+app.put("/users/:id", async (req, res) => {
     const { userName, email, password } = req.body;
-    pool.getConnection((err, connection) => {
-        if (err) {
-            console.error("DB connection error:", err);
-            return res.status(500).json({ error: "DB connection error" })
+
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .update({ userName, email, password })
+            .eq('id', req.params.id)
+            .select(); // Optional: returns updated row
+
+        if (error) {
+            console.error("Supabase error:", error);
+            return res.status(500).json({ error: error.message });
         }
-        connection.query("UPDATE users SET userName = ?, email = ?, password = ? WHERE id = ?", [userName, email, password, req.params.id], (qErr, rows) => {
-            connection.release();
-            if (qErr) {
-                console.error("Query error:", qErr);
-                return res.status(500).json({ error: "Query error" });
-            }
-            res.json(`Message: Record Num : ${req.params.id} updated successfully`);
-        })
-    })
+
+        res.json({
+            message: `Record Num: ${req.params.id} updated successfully`,
+            data: data[0] // Return updated data
+        });
+    } catch (err) {
+        console.error("Server error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
 });
