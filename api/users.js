@@ -1,5 +1,6 @@
 // Users API - Serverless Function for Vercel
 const supabase = require('./_supabase');
+const { generateToken, verifyToken, extractToken } = require('./_jwt');
 
 module.exports = async (req, res) => {
     // Enable CORS
@@ -22,14 +23,21 @@ module.exports = async (req, res) => {
             }
         }
 
-        // GET /api/users/me - Check session (via Authorization header)
+        // GET /api/users/me - Check session (via Authorization header with JWT)
         if (req.method === 'GET' && req.url && req.url.includes('/me')) {
             const authHeader = req.headers.authorization;
-            if (!authHeader) {
+            const token = extractToken(authHeader);
+            
+            if (!token) {
                 return res.status(401).json({ error: 'Not authenticated' });
             }
-            // For now, just return authenticated status
-            return res.status(200).json({ authenticated: true });
+            
+            const decoded = verifyToken(token);
+            if (!decoded) {
+                return res.status(401).json({ error: 'Invalid or expired token' });
+            }
+            
+            return res.status(200).json({ user: decoded });
         }
 
         // POST /api/users/logout - Logout
@@ -85,10 +93,15 @@ module.exports = async (req, res) => {
                     return res.status(401).json({ error: 'Invalid credentials' });
                 }
 
-                // Don't send password back
+                // Generate JWT token
+                const token = generateToken(data);
+                
+                // Return token and user info
                 const { password: _, ...userWithoutPassword } = data;
-
-                return res.status(200).json(userWithoutPassword);
+                return res.status(200).json({
+                    token,
+                    user: userWithoutPassword
+                });
             }
 
             // Otherwise, create new user

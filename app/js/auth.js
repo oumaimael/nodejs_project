@@ -4,22 +4,34 @@ let isAdmin = false;
 // Track if auth is initialized to prevent duplicate event listeners
 let authInitialized = false;
 
-// Check session status from server
+// Get JWT token from localStorage
+function getToken() {
+    return localStorage.getItem('token');
+}
+
+// Check session status from server using JWT token
 async function checkSession() {
     try {
-        // Check if user is stored in localStorage
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-            try {
-                const user = JSON.parse(userStr);
-                if (user && user.id) {
+        const token = getToken();
+        
+        if (token) {
+            // Verify token with server
+            const response = await fetch(`${API_BASE_URL}/api/users/me`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.user && data.user.id) {
                     isAdmin = true;
                     updateAdminUI();
                     return;
                 }
-            } catch (e) {
-                console.error('Invalid user data in localStorage:', e);
-                localStorage.removeItem('user');
+            } else {
+                // Token is invalid or expired, remove it
+                localStorage.removeItem('token');
             }
         }
         
@@ -81,8 +93,8 @@ function onLoginSuccess() {
 // Logout function
 async function logout() {
     try {
-        // Remove user from localStorage
-        localStorage.removeItem('user');
+        // Remove JWT token from localStorage
+        localStorage.removeItem('token');
         
         // Update UI
         isAdmin = false;
@@ -148,8 +160,10 @@ async function initAuth() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Store user info in localStorage
-                    localStorage.setItem('user', JSON.stringify(data));
+                    // Store JWT token in localStorage
+                    if (data.token) {
+                        localStorage.setItem('token', data.token);
+                    }
                     onLoginSuccess();
                     document.getElementById("loginModal").style.display = "none";
                     newLoginForm.reset();

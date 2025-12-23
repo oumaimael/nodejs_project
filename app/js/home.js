@@ -4,6 +4,21 @@ let filteredCats = [];
 let currentPage = 1;
 const catsPerPage = 8;
 
+// Helper function to get JWT token
+function getJWTToken() {
+    return localStorage.getItem('token');
+}
+
+// Helper function to create fetch headers with JWT if authenticated
+function getAuthHeaders(additionalHeaders = {}) {
+    const headers = { 'Content-Type': 'application/json', ...additionalHeaders };
+    const token = getJWTToken();
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+}
+
 // Initialize home page
 document.addEventListener("DOMContentLoaded", () => {
     initAuth();
@@ -347,9 +362,7 @@ async function addCat(catData) {
     try {
         const res = await fetch(`${API_BASE_URL}/api/cats`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(catData)
         });
 
@@ -371,9 +384,7 @@ async function updateCat(catId, catData) {
     try {
         const res = await fetch(`${API_BASE_URL}/api/cats?id=${catId}`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(catData)
         });
 
@@ -401,6 +412,7 @@ async function deleteCat(catId) {
     try {
         const res = await fetch(`${API_BASE_URL}/api/cats?id=${catId}`, {
             method: "DELETE",
+            headers: getAuthHeaders(),
         });
 
         if (res.ok) {

@@ -1,19 +1,42 @@
 // Cats API - Serverless Function for Vercel
 const supabase = require('./_supabase');
+const { verifyToken, extractToken } = require('./_jwt');
+
+// Helper function to check authentication
+function checkAuth(req) {
+    const authHeader = req.headers.authorization;
+    const token = extractToken(authHeader);
+    
+    if (!token) {
+        return null;
+    }
+    
+    return verifyToken(token);
+}
 
 module.exports = async (req, res) => {
     // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
     try {
-        // GET /api/cats - Get all cats
-        if (req.method === 'GET' && !req.query.id) {
+        // Parse body if needed
+        let body = {};
+        if (req.body) {
+            if (typeof req.body === 'string') {
+                body = JSON.parse(req.body);
+            } else {
+                body = req.body;
+            }
+        }
+
+        // GET /api/cats - Get all cats (public)
+        if (req.method === 'GET' && (!req.query || !req.query.id)) {
             const { data, error } = await supabase
                 .from('cats')
                 .select('*')
@@ -23,8 +46,8 @@ module.exports = async (req, res) => {
             return res.status(200).json(data);
         }
 
-        // GET /api/cats?id=1 - Get cat by ID
-        if (req.method === 'GET' && req.query.id) {
+        // GET /api/cats?id=1 - Get cat by ID (public)
+        if (req.method === 'GET' && req.query && req.query.id) {
             const { data, error } = await supabase
                 .from('cats')
                 .select('*')
@@ -35,9 +58,14 @@ module.exports = async (req, res) => {
             return res.status(200).json(data);
         }
 
-        // POST /api/cats - Create new cat
+        // POST /api/cats - Create new cat (requires authentication)
         if (req.method === 'POST') {
-            const { name, tag, description, img } = req.body;
+            const user = checkAuth(req);
+            if (!user) {
+                return res.status(401).json({ error: 'Authentication required' });
+            }
+
+            const { name, tag, description, img } = body;
 
             const { data, error } = await supabase
                 .from('cats')
@@ -49,9 +77,14 @@ module.exports = async (req, res) => {
             return res.status(201).json(data);
         }
 
-        // PUT /api/cats?id=1 - Update cat
-        if (req.method === 'PUT' && req.query.id) {
-            const { name, tag, description, img } = req.body;
+        // PUT /api/cats?id=1 - Update cat (requires authentication)
+        if (req.method === 'PUT' && req.query && req.query.id) {
+            const user = checkAuth(req);
+            if (!user) {
+                return res.status(401).json({ error: 'Authentication required' });
+            }
+
+            const { name, tag, description, img } = body;
 
             const { data, error } = await supabase
                 .from('cats')
@@ -64,8 +97,13 @@ module.exports = async (req, res) => {
             return res.status(200).json({ message: `Cat ${req.query.id} updated successfully`, data });
         }
 
-        // DELETE /api/cats?id=1 - Delete cat
-        if (req.method === 'DELETE' && req.query.id) {
+        // DELETE /api/cats?id=1 - Delete cat (requires authentication)
+        if (req.method === 'DELETE' && req.query && req.query.id) {
+            const user = checkAuth(req);
+            if (!user) {
+                return res.status(401).json({ error: 'Authentication required' });
+            }
+
             const { error } = await supabase
                 .from('cats')
                 .delete()
