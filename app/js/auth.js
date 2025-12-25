@@ -15,20 +15,20 @@ async function checkSession() {
         const token = getToken();
         
         if (token) {
-            // Verify token with server
+            // Send token to server - backend will verify it
             const response = await fetch(`${API_BASE_URL}/api/users/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
             
+            // If backend responds 200, token is valid (backend verified it)
+            // If backend responds 401, token is invalid/expired
             if (response.ok) {
-                const data = await response.json();
-                if (data.user && data.user.id) {
-                    isAdmin = true;
-                    updateAdminUI();
-                    return;
-                }
+                // Backend verified the token is valid
+                isAdmin = true;
+                updateAdminUI();
+                return;
             } else {
                 // Token is invalid or expired, remove it
                 localStorage.removeItem('token');

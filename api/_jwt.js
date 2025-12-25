@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 // Use environment variable or a default secret (change in production!)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
-const JWT_EXPIRY = '7d'; // Token expires in 7 days
+const JWT_EXPIRY = '1d'; // Token expires in 1 days
 
 /**
  * Generate a JWT token for a user
